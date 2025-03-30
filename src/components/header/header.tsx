@@ -8,8 +8,11 @@ import { getProfiles } from "thirdweb/wallets/in-app";
 import { inAppWallet } from "thirdweb/wallets";
 import { client } from '../../app/client';
 import RegisterPopup from '../auth/register';
+import { useAppContext } from 'app/context';
 
 export default function Header() {
+
+    const { setThirdWebData } = useAppContext();
 
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
@@ -29,12 +32,17 @@ export default function Header() {
     useEffect(() => {
         const getThirdWebData = async () => {
             const userdata = await getProfiles({ client });
-            console.log('ThirdWeb Data from Login: ', userdata[0].details);
+            const details = userdata[0].details as { email: string; id: string; picture: string };
+            setThirdWebData({
+                email: details.email,
+                id: details.id,
+                picture: details.picture,
+            });
         }
         if (true) {
             getThirdWebData()
         }
-
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [activeAccount]);
     return (
         <header className="flex items-center justify-between px-4 py-2 shadow-md bg-white">
@@ -53,25 +61,28 @@ export default function Header() {
                 <button className="no-bkgd" onClick={openModal}>
                     Registro
                 </button>
-                <div className="relative">
+                <div className="relative" onClick={activeAccount && openModal}>
                     <button className="no-bkgd">
                         Iniciar Sesión
                     </button>
-                    <div style={{ opacity: 0, pointerEvents: 'auto', position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}>
-                        <ConnectButton
-                            client={client}
-                            wallets={thirdWebLogins}
-                            theme={"dark"}
-                            connectModal={{ size: "wide" }}
-                            connectButton={{ label: "Iniciar Sesión con Google" }}
-                        />
-                    </div>
+                    {!activeAccount &&
+                        <div style={{ opacity: 0, pointerEvents: 'auto', position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}>
+                            <ConnectButton
+                                client={client}
+                                wallets={thirdWebLogins}
+                                theme={"dark"}
+                                connectModal={{ size: "wide" }}
+                                connectButton={{ label: "Iniciar Sesión con Google" }}
+                            />
+                        </div>
+                    }
                 </div>
                 <button className="green-bkgd">
                     Convertirme en Handyman
                 </button>
             </div>
-            {isModalOpen && <RegisterPopup closeModal={closeModal} />}
+            {isModalOpen && <RegisterPopup closeModal={closeModal} isConnected={!!activeAccount} />
+            }
         </header >
     );
 }

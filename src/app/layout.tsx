@@ -4,6 +4,7 @@ import "./globals.css";
 import { ThirdwebProvider } from "thirdweb/react";
 import Footer from '@/components/footer/footer';
 import Header from '@/components/header/header';
+import { AppProvider } from "./context";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -28,11 +29,13 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <ThirdwebProvider>
-          <Header />
-          {children}
-          <Footer />
-        </ThirdwebProvider>
+        <AppProvider>
+          <ThirdwebProvider>
+            <Header />
+            {children}
+            <Footer />
+          </ThirdwebProvider>
+        </AppProvider>
       </body>
     </html>
   );
