@@ -1,61 +1,32 @@
 "use client";
 import React, { useEffect, useState } from 'react';
 import { ConnectButton, useActiveAccount } from "thirdweb/react";
-import { getProfiles } from "thirdweb/wallets/in-app";
 import { inAppWallet } from "thirdweb/wallets";
 import { client } from '../../app/client';
 import { useAppContext } from 'app/context';
 import Image from 'next/image';
 import { municipalities } from 'app/locations';
+import { RegisterHandymanData, HandymanFormErrors } from 'app/interfaces';
 interface RegisterPopupProps {
     closeModal: () => void;
     isConnected: boolean;
 }
 
-interface UserDetails {
-    email: string | undefined;
-    id: string | undefined;
-    picture: string;
-    name: string | undefined;
-    familyName: string | undefined;
-    givenName: string | undefined;
-    phoneNumber: string | undefined;
-    municipio: string | undefined;
-    barrio: string | undefined;
-    direccion: string | undefined;
-    source: string | undefined;
-    trabajosBuscados: string[];
-}
+export default function RegisterHandymanPopup({ closeModal, isConnected }: RegisterPopupProps) {
 
-interface formErrors {
-    familyName: boolean;
-    givenName: boolean;
-    municipio: boolean;
-    barrio: boolean;
-    direccion: boolean;
-    termsAccepted: boolean;
-};
+    const { registerHandymanData, thirdWebData, setRegisterHandymanData } = useAppContext();
 
-export default function RegisterPopup({ closeModal, isConnected }: RegisterPopupProps) {
-
-    const { registerData, setThirdWebData, setRegisterData } = useAppContext();
-
-    const [userData, setUserData] = useState<UserDetails | null>(null);
+    const [userData, setUserData] = useState<RegisterHandymanData | null>(null);
     const [registerStage, setRegisterStage] = useState<string>('baseData');
     const [termsAccepted, setTermsAccepted] = useState<boolean>(false);
-    const [validationErrors, setValidationErrors] = useState<formErrors>({
-        municipio: false,
-        barrio: false,
-        direccion: false,
+    const [validationErrors, setValidationErrors] = useState<HandymanFormErrors>({
         termsAccepted: false,
         familyName: false,
         givenName: false,
+        description: false,
     });
-    const selectedMunicipality = municipalities.find(
-        (item) => item.municipality === userData?.municipio
-    );
 
-    const trabajadoresBuscados = [
+    const trabajos = [
         "Reparación de fontanería",
         "Instalación de electrodomésticos",
         "Pintura y decoración",
@@ -95,52 +66,43 @@ export default function RegisterPopup({ closeModal, isConnected }: RegisterPopup
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         const errors = {
-            municipio: !userData?.municipio,
-            barrio: !userData?.barrio,
-            direccion: !userData?.direccion,
             termsAccepted: !termsAccepted,
             familyName: !userData?.familyName,
             givenName: !userData?.givenName,
+            description: !userData?.description,
         };
         setValidationErrors(errors);
         if (Object.values(errors).includes(true)) {
             return;
         }
-        setRegisterData(userData)
+        setRegisterHandymanData(userData)
         setRegisterStage('preferredJobs')
     };
 
-    const handleComplete = () => {
-        console.log('Final Register Data: ', userData);
+    const handleJobs = () => {
+        setRegisterStage('workZones')
+        setRegisterHandymanData(userData)
     };
 
-    const getThirdWebData = async () => {
-        const userdata = await getProfiles({ client });
-        const details = userdata[0].details as UserDetails;
-        setThirdWebData({
-            email: details.email,
-            id: details.id,
-            picture: details.picture,
-        });
-        setUserData({
-            ...details,
-            trabajosBuscados: [],
-            municipio: '',
-            phoneNumber: '',
-            direccion: '',
-            barrio: '',
-        });
-    }
-
     useEffect(() => {
-        if (registerData) {
-            setUserData(registerData)
-            setRegisterStage('preferredJobs')
-        } else {
-            getThirdWebData()
+        if (registerStage !== 'workZones') {
+            if (registerHandymanData) {
+                setUserData(registerHandymanData)
+                setRegisterStage('preferredJobs')
+            } else {
+                setUserData({
+                    ...thirdWebData,
+                    trabajosDisponibles: [],
+                    zonasDisponibles: [],
+                    municipio: '',
+                    description: '',
+                    phoneNumber: '',
+                    source: '',
+                } as RegisterHandymanData);
+            }
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [activeAccount, isConnected, registerData]);
+    }, [activeAccount, isConnected, registerHandymanData]);
 
     return (
         <div
@@ -152,7 +114,7 @@ export default function RegisterPopup({ closeModal, isConnected }: RegisterPopup
                     border: '2px solid #ADADAD',
                 }}>
                 <h2 className="text-center" style={{ color: "#000000" }}>
-                    {isConnected && userData ? "Completar Registro" : "Registrarse en ServiExpress"}
+                    {isConnected && userData ? "Registrarme como Trabajador" : "Registrarse en ServiExpress"}
                 </h2>
                 {(!isConnected || !activeAccount) && (
                     <div className="flex justify-center mt-6">
@@ -168,7 +130,7 @@ export default function RegisterPopup({ closeModal, isConnected }: RegisterPopup
                         />
                     </div>
                 )}
-                {registerStage === 'baseData' ? <div>{(activeAccount || isConnected) && userData && (
+                {registerStage === 'baseData' && (activeAccount || isConnected) && userData && (
                     <form onSubmit={handleSubmit} className="flex flex-col space-y-4 mt-4 form-input">
                         {/* Profile Picture */}
                         <div className="flex justify-center mb-4">
@@ -180,7 +142,6 @@ export default function RegisterPopup({ closeModal, isConnected }: RegisterPopup
                                 height={96}
                             />
                         </div>
-
                         {/* Form Fields */}
                         <div className="flex space-x-4">
                             <div className="w-1/2">
@@ -228,7 +189,6 @@ export default function RegisterPopup({ closeModal, isConnected }: RegisterPopup
                                 </label>
                             </div>
                         </div>
-
                         <label>
                             Email:
                             <input
@@ -264,76 +224,12 @@ export default function RegisterPopup({ closeModal, isConnected }: RegisterPopup
                                 title="El número debe tener 8 dígitos."
                             />
                         </label>
-                        <div className="flex space-x-4">
-                            <div className="w-1/2">
-                                <label>
-                                    Municipio:
-                                    <select
-                                        className={`w-full border p-2 rounded ${validationErrors.municipio ? 'border-red-500' : 'border-gray-500'}`}
-                                        value={userData.municipio}
-                                        onChange={(e) => {
-                                            setUserData((prevState) => {
-                                                if (!prevState) {
-                                                    return null;
-                                                }
-                                                return {
-                                                    ...prevState,
-                                                    municipio: e.target.value,
-                                                    barrio: '',
-                                                };
-                                            });
-                                        }}
-                                    >
-                                        <option value="" disabled>
-                                            Seleccionar
-                                        </option>
-                                        {municipalities.map((item, index) => (
-                                            <option key={index} value={item.municipality}>
-                                                {item.municipality}
-                                            </option>
-                                        ))}
-                                    </select>
-                                </label>
-                            </div>
-                            <div className="w-1/2">
-                                <label>
-                                    Barrio:
-                                    <select
-                                        disabled={!userData.municipio}
-                                        className={`w-full border p-2 rounded ${validationErrors.barrio ? 'border-red-500' : 'border-gray-500'}`}
-                                        value={userData.barrio}
-                                        onChange={(e) => {
-                                            setUserData((prevState) => {
-                                                if (!prevState) {
-                                                    return null;
-                                                }
-                                                return {
-                                                    ...prevState,
-                                                    barrio: e.target.value,
-                                                };
-                                            });
-                                        }}
-                                    >
-                                        <option value="" disabled>
-                                            Seleccionar
-                                        </option>
-                                        {selectedMunicipality?.neighborhoods.map((neighborhood, index) => (
-                                            <option key={index} value={neighborhood}>
-                                                {neighborhood}
-                                            </option>
-                                        ))}
-                                    </select>
-                                </label>
-                            </div>
-                        </div>
-
                         <label>
-                            Dirección de Domicilio:
-                            <input
-                                type="text"
-                                className={`w-full border p-2 rounded ${validationErrors.direccion ? 'border-red-500' : 'border-gray-300'}`}
-                                placeholder="Descripción de la Vivienda"
-                                value={userData.direccion}
+                            Sobre mí:
+                            <textarea
+                                className={`w-full border text-black p-2 rounded ${validationErrors.description ? 'border-red-500' : 'border-gray-300'}`}
+                                value={userData.description}
+                                placeholder="Descripción"
                                 onChange={(e) => {
                                     setUserData((prevState) => {
                                         if (!prevState) {
@@ -341,10 +237,12 @@ export default function RegisterPopup({ closeModal, isConnected }: RegisterPopup
                                         }
                                         return {
                                             ...prevState,
-                                            direccion: e.target.value,
+                                            description: e.target.value,
                                         };
                                     });
                                 }}
+                                rows={4}
+                                style={{ resize: 'vertical' }}
                             />
                         </label>
                         <label>
@@ -400,64 +298,120 @@ export default function RegisterPopup({ closeModal, isConnected }: RegisterPopup
                             </div>
                         </div>
                     </form>
-                )}</div> :
-                    <div className='form-input'>
-                        <div className="flex justify-center mb-4">
-                            {registerData && (
-                                <Image
-                                    src={registerData.picture}
-                                    alt="Profile"
-                                    className="rounded-full border border-gray-300"
-                                    width={96}
-                                    height={96}
-                                />
-                            )}
-                        </div>
+                )}
+                {registerStage === 'preferredJobs' && <div className='form-input'>
+                    <div className="flex justify-center mb-4">
+                        {registerHandymanData && (
+                            <Image
+                                src={registerHandymanData.picture}
+                                alt="Profile"
+                                className="rounded-full border border-gray-300"
+                                width={96}
+                                height={96}
+                            />
+                        )}
+                    </div>
 
-                        <div className="text-center mb-6">
-                            {registerData?.name && (
-                                <h2 className="text-lg font-semibold">{registerData.name}</h2>
-                            )}
-                            <p className="mt-2 text-gray-600">¡Estás a un paso de completar tu registro!</p>
-                            <p className="text-gray-600">Selecciona los trabajos que te interesa contratar:</p>
-                        </div>
+                    <div className="text-center mb-6">
+                        {registerHandymanData?.name && (
+                            <h2 className="text-lg font-semibold">{registerHandymanData.name}</h2>
+                        )}
+                        <p className="mt-2 text-gray-600">¡Continua el registro! Selecciona tus áreas de trabajo:</p>
+                        <p className="text-gray-600">Selecciona al menos una:</p>
+                    </div>
 
-                        <div className="mb-4">
-                            <div className="flex flex-wrap gap-2 justify-center">
-                                {trabajadoresBuscados.map((profession) => (
-                                    <div
-                                        key={profession}
-                                        onClick={() => setUserData((prevState) => {
-                                            if (!prevState) {
-                                                return null;
-                                            }
-                                            const trabajosBuscados = prevState?.trabajosBuscados || [];
-                                            if (trabajosBuscados.includes(profession)) {
-                                                return {
-                                                    ...prevState,
-                                                    trabajosBuscados: trabajosBuscados.filter((item) => item !== profession),
-                                                };
-                                            } else {
-                                                return {
-                                                    ...prevState,
-                                                    trabajosBuscados: [...trabajosBuscados, profession],
-                                                };
-                                            }
-                                        })}
-                                        className={`selector-item ${userData?.trabajosBuscados?.includes(profession) ? 'selected' : ''}`}
-                                    >
-                                        {profession}
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                        <div className="flex justify-center mt-6">
-                            <button onClick={() => handleComplete()} className="semiround-green-button">
-                                Completar
-                            </button>
+                    <div className="mb-4">
+                        <div className="flex flex-wrap gap-2 justify-center">
+                            {trabajos.map((profession) => (
+                                <div
+                                    key={profession}
+                                    onClick={() => setUserData((prevState) => {
+                                        if (!prevState) {
+                                            return null;
+                                        }
+                                        const trabajosDisponibles = prevState?.trabajosDisponibles || [];
+                                        if (trabajosDisponibles.includes(profession)) {
+                                            return {
+                                                ...prevState,
+                                                trabajosDisponibles: trabajosDisponibles.filter((item) => item !== profession),
+                                            };
+                                        } else {
+                                            return {
+                                                ...prevState,
+                                                trabajosDisponibles: [...trabajosDisponibles, profession],
+                                            };
+                                        }
+                                    })}
+                                    className={`selector-item ${userData?.trabajosDisponibles?.includes(profession) ? 'selected' : ''}`}
+                                >
+                                    {profession}
+                                </div>
+                            ))}
                         </div>
                     </div>
-                }
+                    <div className="flex justify-center mt-6">
+                        <button onClick={() => setRegisterStage('workZones')} className="semiround-green-button" disabled={userData?.trabajosDisponibles && userData?.trabajosDisponibles?.length < 1}>
+                            Continuar
+                        </button>
+                    </div>
+                </div>}
+                {registerStage === 'workZones' && <div className='form-input'>
+                    <div className="flex justify-center mb-4">
+                        {registerHandymanData && (
+                            <Image
+                                src={registerHandymanData.picture}
+                                alt="Profile"
+                                className="rounded-full border border-gray-300"
+                                width={96}
+                                height={96}
+                            />
+                        )}
+                    </div>
+
+                    <div className="text-center mb-6">
+                        {registerHandymanData?.name && (
+                            <h2 className="text-lg font-semibold">{registerHandymanData.name}</h2>
+                        )}
+                        <p className="mt-2 text-gray-600">Finaliza el registro! Selecciona tus zonas de disponibilidad:</p>
+                        <p className="text-gray-600">Selecciona al menos una:</p>
+                    </div>
+
+                    <div className="mb-4">
+                        <div className="flex flex-wrap gap-2 justify-center">
+                            {municipalities.map((item) => (
+                                <div
+                                    key={item.municipality}
+                                    onClick={() => setUserData((prevState) => {
+                                        if (!prevState) {
+                                            return null;
+                                        }
+                                        const trabajosDisponibles = prevState?.trabajosDisponibles || [];
+                                        if (trabajosDisponibles.includes(item.municipality)) {
+                                            return {
+                                                ...prevState,
+                                                trabajosDisponibles: trabajosDisponibles.filter((item) => item !== item),
+                                            };
+                                        } else {
+                                            return {
+                                                ...prevState,
+                                                trabajosDisponibles: [...trabajosDisponibles, item.municipality],
+                                            };
+                                        }
+                                    })}
+                                    className={`selector-item ${userData?.trabajosDisponibles?.includes(item.municipality) ? 'selected' : ''}`}
+                                >
+                                    {item.municipality}
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                    <div className="flex justify-center mt-6">
+                        <button onClick={() => handleJobs()} className="semiround-green-button" disabled={userData?.trabajosDisponibles && userData?.trabajosDisponibles?.length < 1}>
+                            Registrar
+                        </button>
+                    </div>
+                </div>}
+
             </div>
         </div>
     );

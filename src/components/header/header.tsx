@@ -7,17 +7,22 @@ import { ConnectButton, useActiveAccount } from "thirdweb/react";
 import { getProfiles } from "thirdweb/wallets/in-app";
 import { inAppWallet } from "thirdweb/wallets";
 import { client } from '../../app/client';
-import RegisterPopup from '../auth/register';
+import RegisterClientPopup from '../auth/registerClient';
+import RegisterHandymanPopup from '../auth/registerHandyman';
 import { useAppContext } from 'app/context';
+import { ThirdWebData } from 'app/interfaces';
 
 export default function Header() {
 
     const { setThirdWebData } = useAppContext();
 
-    const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+    const [isClientModalOpen, setIsClientModalOpen] = useState<boolean>(false);
+    const [isHandymanModalOpen, setIsHandymanModalOpen] = useState<boolean>(false);
 
-    const openModal = () => setIsModalOpen(true);
-    const closeModal = () => setIsModalOpen(false);
+    const openClientModal = () => setIsClientModalOpen(true);
+    const closeClientModal = () => setIsClientModalOpen(false);
+    const openHandymanModal = () => setIsHandymanModalOpen(true);
+    const closeHandymanModal = () => setIsHandymanModalOpen(false);
 
     const activeAccount = useActiveAccount();
 
@@ -32,11 +37,14 @@ export default function Header() {
     useEffect(() => {
         const getThirdWebData = async () => {
             const userdata = await getProfiles({ client });
-            const details = userdata[0].details as { email: string; id: string; picture: string };
+            const details = userdata[0].details as ThirdWebData;
             setThirdWebData({
                 email: details.email,
                 id: details.id,
                 picture: details.picture,
+                name: details.name,
+                familyName: details.familyName,
+                givenName: details.givenName,
             });
         }
         if (true) {
@@ -58,31 +66,29 @@ export default function Header() {
             </div>
             {/* Auth Buttons */}
             <div className="flex items-center space-x-15">
-                <button className="no-bkgd" onClick={openModal}>
+                <button className="no-bkgd" onClick={openClientModal}>
                     Registro
                 </button>
-                <div className="relative" onClick={activeAccount && openModal}>
+                {!activeAccount && <div className="relative">
                     <button className="no-bkgd">
                         Iniciar Sesión
                     </button>
-                    {!activeAccount &&
-                        <div style={{ opacity: 0, pointerEvents: 'auto', position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}>
-                            <ConnectButton
-                                client={client}
-                                wallets={thirdWebLogins}
-                                theme={"dark"}
-                                connectModal={{ size: "wide" }}
-                                connectButton={{ label: "Iniciar Sesión con Google" }}
-                            />
-                        </div>
-                    }
-                </div>
-                <button className="green-bkgd">
+                    <div style={{ opacity: 0, pointerEvents: 'auto', position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}>
+                        <ConnectButton
+                            client={client}
+                            wallets={thirdWebLogins}
+                            theme={"dark"}
+                            connectModal={{ size: "wide" }}
+                            connectButton={{ label: "Iniciar Sesión con Google" }}
+                        />
+                    </div>
+                </div>}
+                <button className="green-bkgd" onClick={openHandymanModal}>
                     Convertirme en Handyman
                 </button>
             </div>
-            {isModalOpen && <RegisterPopup closeModal={closeModal} isConnected={!!activeAccount} />
-            }
+            {isClientModalOpen && <RegisterClientPopup closeModal={closeClientModal} isConnected={!!activeAccount} />}
+            {isHandymanModalOpen && <RegisterHandymanPopup closeModal={closeHandymanModal} isConnected={!!activeAccount} />}
         </header >
     );
 }
