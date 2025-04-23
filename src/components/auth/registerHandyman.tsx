@@ -6,7 +6,8 @@ import { client } from '../../app/client';
 import { useAppContext } from 'app/context';
 import Image from 'next/image';
 import { municipalities } from 'app/locations';
-import { RegisterHandymanData, HandymanFormErrors } from 'app/interfaces';
+import { RegisterHandymanData, HandymanFormErrors, Skill } from 'app/interfaces';
+import { handymenAPI, skillsAPI, authAPI, usersAPI } from 'app/axios';
 interface RegisterPopupProps {
     closeModal: () => void;
     isConnected: boolean;
@@ -14,7 +15,9 @@ interface RegisterPopupProps {
 
 export default function RegisterHandymanPopup({ closeModal, isConnected }: RegisterPopupProps) {
 
-    const { registerHandymanData, thirdWebData, setRegisterHandymanData } = useAppContext();
+    const [trabajos, setTrabajos] = useState([]);
+
+    const { registerHandymanData, thirdWebData, setRegisterHandymanData, setCurrentUser } = useAppContext();
 
     const [userData, setUserData] = useState<RegisterHandymanData | null>(null);
     const [registerStage, setRegisterStage] = useState<string>('baseData');
@@ -25,29 +28,6 @@ export default function RegisterHandymanPopup({ closeModal, isConnected }: Regis
         givenName: false,
         description: false,
     });
-
-    const trabajos = [
-        "Reparación de fontanería",
-        "Instalación de electrodomésticos",
-        "Pintura y decoración",
-        "Reparación de electrodomésticos",
-        "Reparación de techos",
-        "Montaje de muebles",
-        "Instalación de pisos",
-        "Electricidad (instalación y reparación)",
-        "Jardinería y mantenimiento de exteriores",
-        "Reparación de ventanas y puertas",
-        "Carpintería",
-        "Instalación de sistemas de seguridad",
-        "Plomería",
-        "Sistemas de climatización",
-        "Reparación de tejados",
-        "Mantenimiento general",
-        "Desmontaje y montaje de interiores",
-        "Instalación de cerámica y azulejos",
-        "Reparación de sistemas de calefacción",
-        "Servicios de albañilería"
-    ];
 
     const handleClose = (e: React.MouseEvent<HTMLDivElement>) => {
         if (e.target === e.currentTarget) {
@@ -79,10 +59,33 @@ export default function RegisterHandymanPopup({ closeModal, isConnected }: Regis
         setRegisterStage('preferredJobs')
     };
 
-    const handleJobs = () => {
-        setRegisterStage('workZones')
-        setRegisterHandymanData(userData)
+    const handleComplete = async () => {
+        if (!userData || !userData.email || !userData.id) {
+            console.error("User data is incomplete or undefined.");
+            return;
+        }
+        try {
+            await handymenAPI.registerHandyman(userData);
+            await authAPI.login(userData.email, userData.id)
+            const user = await usersAPI.getUserProfile()
+            setCurrentUser(user);
+            closeModal();
+        } catch (error) {
+            console.error(error);
+        }
     };
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const response = await skillsAPI.getAllSkills();
+                setTrabajos(response || []);
+            } catch (err) {
+                console.error(err);
+            }
+        };
+        fetchData();
+    }, []);
 
     useEffect(() => {
         if (registerStage !== 'workZones') {
@@ -102,7 +105,7 @@ export default function RegisterHandymanPopup({ closeModal, isConnected }: Regis
             }
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [activeAccount, isConnected, registerHandymanData]);
+    }, [activeAccount, isConnected, registerHandymanData, thirdWebData]);
 
     return (
         <div
@@ -117,7 +120,7 @@ export default function RegisterHandymanPopup({ closeModal, isConnected }: Regis
                     {isConnected && userData ? "Registrarme como Trabajador" : "Registrarse en ServiExpress"}
                 </h2>
                 {(!isConnected || !activeAccount) && (
-                    <div className="flex justify-center mt-6">
+                    <div className="flex flex-col justify-center items-center">
                         <p className="text-center mt-4" style={{ color: "#6B6868" }}>
                             Crea una cuenta con Google
                         </p>
@@ -130,7 +133,7 @@ export default function RegisterHandymanPopup({ closeModal, isConnected }: Regis
                         />
                     </div>
                 )}
-                {registerStage === 'baseData' && (activeAccount || isConnected) && userData && (
+                {registerStage === 'baseData' && (activeAccount || isConnected) && userData?.picture && (
                     <form onSubmit={handleSubmit} className="flex flex-col space-y-4 mt-4 form-input">
                         {/* Profile Picture */}
                         <div className="flex justify-center mb-4">
@@ -290,9 +293,7 @@ export default function RegisterHandymanPopup({ closeModal, isConnected }: Regis
                                 </button>
                             </div>
                             <div className="w-1/2 flex justify-center">
-                                <button
-                                    className="semiround-green-button"
-                                >
+                                <button onClick={closeModal} className="semiround-green-button">
                                     Cancelar
                                 </button>
                             </div>
@@ -322,29 +323,29 @@ export default function RegisterHandymanPopup({ closeModal, isConnected }: Regis
 
                     <div className="mb-4">
                         <div className="flex flex-wrap gap-2 justify-center">
-                            {trabajos.map((profession) => (
+                            {trabajos.map((profession: Skill) => (
                                 <div
-                                    key={profession}
+                                    key={profession.skillName}
                                     onClick={() => setUserData((prevState) => {
                                         if (!prevState) {
                                             return null;
                                         }
                                         const trabajosDisponibles = prevState?.trabajosDisponibles || [];
-                                        if (trabajosDisponibles.includes(profession)) {
+                                        if (trabajosDisponibles.includes(profession.skillName)) {
                                             return {
                                                 ...prevState,
-                                                trabajosDisponibles: trabajosDisponibles.filter((item) => item !== profession),
+                                                trabajosDisponibles: trabajosDisponibles.filter((item) => item !== profession.skillName),
                                             };
                                         } else {
                                             return {
                                                 ...prevState,
-                                                trabajosDisponibles: [...trabajosDisponibles, profession],
+                                                trabajosDisponibles: [...trabajosDisponibles, profession.skillName],
                                             };
                                         }
                                     })}
-                                    className={`selector-item ${userData?.trabajosDisponibles?.includes(profession) ? 'selected' : ''}`}
+                                    className={`selector-item ${userData?.trabajosDisponibles?.includes(profession.skillName) ? 'selected' : ''}`}
                                 >
-                                    {profession}
+                                    {profession.skillName}
                                 </div>
                             ))}
                         </div>
@@ -385,20 +386,20 @@ export default function RegisterHandymanPopup({ closeModal, isConnected }: Regis
                                         if (!prevState) {
                                             return null;
                                         }
-                                        const trabajosDisponibles = prevState?.trabajosDisponibles || [];
-                                        if (trabajosDisponibles.includes(item.municipality)) {
+                                        const zonasDisponibles = prevState?.zonasDisponibles || [];
+                                        if (zonasDisponibles.includes(item.municipality)) {
                                             return {
                                                 ...prevState,
-                                                trabajosDisponibles: trabajosDisponibles.filter((item) => item !== item),
+                                                zonasDisponibles: zonasDisponibles.filter((item) => item !== item),
                                             };
                                         } else {
                                             return {
                                                 ...prevState,
-                                                trabajosDisponibles: [...trabajosDisponibles, item.municipality],
+                                                zonasDisponibles: [...zonasDisponibles, item.municipality],
                                             };
                                         }
                                     })}
-                                    className={`selector-item ${userData?.trabajosDisponibles?.includes(item.municipality) ? 'selected' : ''}`}
+                                    className={`selector-item ${userData?.zonasDisponibles?.includes(item.municipality) ? 'selected' : ''}`}
                                 >
                                     {item.municipality}
                                 </div>
@@ -406,7 +407,7 @@ export default function RegisterHandymanPopup({ closeModal, isConnected }: Regis
                         </div>
                     </div>
                     <div className="flex justify-center mt-6">
-                        <button onClick={() => handleJobs()} className="semiround-green-button" disabled={userData?.trabajosDisponibles && userData?.trabajosDisponibles?.length < 1}>
+                        <button onClick={handleComplete} className="semiround-green-button" disabled={userData?.zonasDisponibles && userData?.zonasDisponibles?.length < 1}>
                             Registrar
                         </button>
                     </div>

@@ -23,10 +23,10 @@ export default function Footer() {
                 <div>
                     <label className="no-bkgd-black" style={{ cursor: 'default' }}>Síguenos:</label>
                 </div>
-                <a href="https://facebook.com" target="_blank" rel="noopener noreferrer">
+                <a href="https://www.facebook.com/ServiExpressNic" target="_blank" rel="noopener noreferrer">
                     <FaFacebook className="text-2xl text-black" />
                 </a>
-                <a href="https://twitter.com" target="_blank" rel="noopener noreferrer">
+                <a href="https://x.com/ServiExpressNic" target="_blank" rel="noopener noreferrer">
                     <FaTwitter className="text-2xl text-black" />
                 </a>
                 <a href="https://wa.me/" target="_blank" rel="noopener noreferrer">
@@ -35,7 +35,7 @@ export default function Footer() {
                 <a href="https://instagram.com" target="_blank" rel="noopener noreferrer">
                     <FaInstagram className="text-2xl text-black" />
                 </a>
-                <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer">
+                <a href="https://www.linkedin.com/in/josé-andrés-préndiz-gómez-670a9a142/" target="_blank" rel="noopener noreferrer">
                     <FaLinkedin className="text-2xl text-black" />
                 </a>
             </div>

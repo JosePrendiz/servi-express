@@ -7,6 +7,21 @@ export interface ThirdWebData {
     givenName: string | undefined;
 }
 
+export interface User {
+    name: string;
+    lastName: string;
+    profilePicture: string;
+    email: string;
+    phone: string;
+    role: string;
+    municipality: string;
+    neighborhood: string;
+    isBanned: boolean;
+    address: string;
+    preferences: Skill[];
+    skills: Skill[];
+}
+
 export interface RegisterClientData extends ThirdWebData {
     barrio: string | undefined;
     direccion: string | undefined;
@@ -40,3 +55,15 @@ export interface HandymanFormErrors {
     termsAccepted: boolean;
     description: boolean;
 };
+
+export interface PageParams {
+    page: number;
+    limit: number;
+    skills: string[];
+    coverageArea: string[];
+}
+
+export interface Skill {
+    skillName: string;
+    description: string;
+}

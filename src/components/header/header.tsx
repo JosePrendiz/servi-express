@@ -3,28 +3,37 @@ import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link'
 import serviExpressLogo from '@/assets/servi-express-logo.png'
-import { ConnectButton, useActiveAccount } from "thirdweb/react";
+import { ConnectButton, useActiveAccount, useDisconnect, useActiveWallet } from "thirdweb/react";
 import { getProfiles } from "thirdweb/wallets/in-app";
 import { inAppWallet } from "thirdweb/wallets";
 import { client } from '../../app/client';
 import RegisterClientPopup from '../auth/registerClient';
 import RegisterHandymanPopup from '../auth/registerHandyman';
+import { IoChatbubbleEllipsesOutline } from "react-icons/io5";
+import { RiArrowDropDownLine, RiArrowDropUpLine } from "react-icons/ri";
+import { HiOutlineLogout } from "react-icons/hi";
+import { CgProfile } from "react-icons/cg";
+import { FaRegCalendarAlt } from "react-icons/fa";
 import { useAppContext } from 'app/context';
 import { ThirdWebData } from 'app/interfaces';
+import { authAPI, usersAPI } from 'app/axios';
 
 export default function Header() {
 
-    const { setThirdWebData } = useAppContext();
-
+    const { setThirdWebData, setCurrentUser, currentUser } = useAppContext();
     const [isClientModalOpen, setIsClientModalOpen] = useState<boolean>(false);
     const [isHandymanModalOpen, setIsHandymanModalOpen] = useState<boolean>(false);
+    const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false);
 
     const openClientModal = () => setIsClientModalOpen(true);
     const closeClientModal = () => setIsClientModalOpen(false);
     const openHandymanModal = () => setIsHandymanModalOpen(true);
     const closeHandymanModal = () => setIsHandymanModalOpen(false);
+    const toggleDropdown = () => setIsDropdownOpen((prev) => !prev);
 
     const activeAccount = useActiveAccount();
+    const { disconnect } = useDisconnect();
+    const thirdWebWallet = useActiveWallet();
 
     const thirdWebLogins = [
         inAppWallet({
@@ -34,18 +43,34 @@ export default function Header() {
         }),
     ];
 
+    const logout = () => {
+        if (thirdWebWallet) {
+            disconnect(thirdWebWallet);
+            window.location.reload();
+        }
+    }
+
     useEffect(() => {
         const getThirdWebData = async () => {
-            const userdata = await getProfiles({ client });
-            const details = userdata[0].details as ThirdWebData;
-            setThirdWebData({
-                email: details.email,
-                id: details.id,
-                picture: details.picture,
-                name: details.name,
-                familyName: details.familyName,
-                givenName: details.givenName,
-            });
+            try {
+                const userdata = await getProfiles({ client });
+                const details = userdata[0].details as ThirdWebData;
+                setThirdWebData({
+                    email: details.email,
+                    id: details.id,
+                    picture: details.picture,
+                    name: details.name,
+                    familyName: details.familyName,
+                    givenName: details.givenName,
+                });
+                if (details.email && details.id) {
+                    await authAPI.login(details.email, details.id)
+                    const user = await usersAPI.getUserProfile()
+                    setCurrentUser(user);
+                }
+            } catch (error) {
+                console.error(error);
+            }
         }
         if (true) {
             getThirdWebData()
@@ -66,10 +91,12 @@ export default function Header() {
             </div>
             {/* Auth Buttons */}
             <div className="flex items-center space-x-15">
-                <button className="no-bkgd" onClick={openClientModal}>
-                    Registro
-                </button>
-                {!activeAccount && <div className="relative">
+                {!currentUser &&
+                    <button className="no-bkgd" onClick={openClientModal}>
+                        Registro
+                    </button>
+                }
+                {(!activeAccount && !currentUser) && <div className="relative">
                     <button className="no-bkgd">
                         Iniciar Sesión
                     </button>
@@ -83,9 +110,33 @@ export default function Header() {
                         />
                     </div>
                 </div>}
-                <button className="green-bkgd" onClick={openHandymanModal}>
+                {currentUser?.role !== 'handyman' && <button className="green-bkgd" onClick={openHandymanModal}>
                     Convertirme en Handyman
-                </button>
+                </button>}
+                {/* User Dropdown */}
+
+                {currentUser &&
+                    <div className="relative">
+                        <button className="no-bkgd flex items-center" onClick={toggleDropdown}>
+                            Hola, {currentUser.name} {isDropdownOpen ? <RiArrowDropUpLine className="text-4xl" /> : <RiArrowDropDownLine className="text-4xl" />}
+                        </button>
+                        {isDropdownOpen && (
+                            <div className={`dropdown-menu ${isDropdownOpen ? 'open' : ''}`} onClick={toggleDropdown}>
+                                <Link href="/perfil" className='dropdown-item'>
+                                    <CgProfile className="green-icons" />Mi Perfil
+                                </Link>
+                                <Link href="/reservas" className='dropdown-item'>
+                                    <FaRegCalendarAlt className="green-icons" />Mis Reservas
+                                </Link>
+                                <Link href="/chats" className='dropdown-item'>
+                                    <IoChatbubbleEllipsesOutline className="green-icons" />Chats
+                                </Link>
+                                <button className="dropdown-item" onClick={logout}>
+                                    <HiOutlineLogout className="green-icons" />Cerrar Sesión
+                                </button>
+                            </div>
+                        )}
+                    </div>}
             </div>
             {isClientModalOpen && <RegisterClientPopup closeModal={closeClientModal} isConnected={!!activeAccount} />}
             {isHandymanModalOpen && <RegisterHandymanPopup closeModal={closeHandymanModal} isConnected={!!activeAccount} />}

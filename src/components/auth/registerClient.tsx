@@ -6,7 +6,9 @@ import { client } from '../../app/client';
 import { useAppContext } from 'app/context';
 import Image from 'next/image';
 import { municipalities } from 'app/locations';
-import { RegisterClientData, ClientFormErrors } from 'app/interfaces';
+import { RegisterClientData, ClientFormErrors, Skill } from 'app/interfaces';
+import { authAPI, clientsAPI, skillsAPI, usersAPI } from '../../app/axios'
+
 interface RegisterPopupProps {
     closeModal: () => void;
     isConnected: boolean;
@@ -14,7 +16,9 @@ interface RegisterPopupProps {
 
 export default function RegisterClientPopup({ closeModal, isConnected }: RegisterPopupProps) {
 
-    const { registerClientData, thirdWebData, setRegisterClientData } = useAppContext();
+    const [trabajadoresBuscados, setTrabajadoresBuscados] = useState([]);
+
+    const { registerClientData, thirdWebData, setRegisterClientData, setCurrentUser } = useAppContext();
 
     const [userData, setUserData] = useState<RegisterClientData | null>(null);
     const [registerStage, setRegisterStage] = useState<string>('baseData');
@@ -30,29 +34,6 @@ export default function RegisterClientPopup({ closeModal, isConnected }: Registe
     const selectedMunicipality = municipalities.find(
         (item) => item.municipality === userData?.municipio
     );
-
-    const trabajadoresBuscados = [
-        "Reparación de fontanería",
-        "Instalación de electrodomésticos",
-        "Pintura y decoración",
-        "Reparación de electrodomésticos",
-        "Reparación de techos",
-        "Montaje de muebles",
-        "Instalación de pisos",
-        "Electricidad (instalación y reparación)",
-        "Jardinería y mantenimiento de exteriores",
-        "Reparación de ventanas y puertas",
-        "Carpintería",
-        "Instalación de sistemas de seguridad",
-        "Plomería",
-        "Sistemas de climatización",
-        "Reparación de tejados",
-        "Mantenimiento general",
-        "Desmontaje y montaje de interiores",
-        "Instalación de cerámica y azulejos",
-        "Reparación de sistemas de calefacción",
-        "Servicios de albañilería"
-    ];
 
     const handleClose = (e: React.MouseEvent<HTMLDivElement>) => {
         if (e.target === e.currentTarget) {
@@ -86,9 +67,33 @@ export default function RegisterClientPopup({ closeModal, isConnected }: Registe
         setRegisterStage('preferredJobs')
     };
 
-    const handleComplete = () => {
-        console.log('Final Register Data: ', userData);
+    const handleComplete = async () => {
+        if (!userData || !userData.email || !userData.id) {
+            console.error("User data is incomplete or undefined.");
+            return;
+        }
+        try {
+            await clientsAPI.registerClient(userData);
+            await authAPI.login(userData.email, userData.id)
+            const user = await usersAPI.getUserProfile()
+            setCurrentUser(user);
+            closeModal();
+        } catch (error) {
+            console.error(error);
+        }
     };
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const response = await skillsAPI.getAllSkills();
+                setTrabajadoresBuscados(response || []);
+            } catch (err) {
+                console.error(err);
+            }
+        };
+        fetchData();
+    }, []);
 
     useEffect(() => {
         if (registerClientData) {
@@ -105,8 +110,7 @@ export default function RegisterClientPopup({ closeModal, isConnected }: Registe
                 source: '',
             } as RegisterClientData);
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [activeAccount, isConnected, registerClientData]);
+    }, [activeAccount, isConnected, registerClientData, thirdWebData]);
 
     return (
         <div
@@ -121,10 +125,11 @@ export default function RegisterClientPopup({ closeModal, isConnected }: Registe
                     {isConnected && userData ? "Completar Registro" : "Registrarse en ServiExpress"}
                 </h2>
                 {(!isConnected || !activeAccount) && (
-                    <div className="flex justify-center mt-6">
+                    <div className="flex flex-col justify-center items-center">
                         <p className="text-center mt-4" style={{ color: "#6B6868" }}>
                             Crea una cuenta con Google
                         </p>
+                        <br></br>
                         <ConnectButton
                             client={client}
                             wallets={thirdWebLogins}
@@ -358,9 +363,7 @@ export default function RegisterClientPopup({ closeModal, isConnected }: Registe
                                 </button>
                             </div>
                             <div className="w-1/2 flex justify-center">
-                                <button
-                                    className="semiround-green-button"
-                                >
+                                <button onClick={closeModal} className="semiround-green-button">
                                     Cancelar
                                 </button>
                             </div>
@@ -390,29 +393,29 @@ export default function RegisterClientPopup({ closeModal, isConnected }: Registe
 
                         <div className="mb-4">
                             <div className="flex flex-wrap gap-2 justify-center">
-                                {trabajadoresBuscados.map((profession) => (
+                                {trabajadoresBuscados.map((profession: Skill) => (
                                     <div
-                                        key={profession}
+                                        key={profession.skillName}
                                         onClick={() => setUserData((prevState) => {
                                             if (!prevState) {
                                                 return null;
                                             }
                                             const trabajosBuscados = prevState?.trabajosBuscados || [];
-                                            if (trabajosBuscados.includes(profession)) {
+                                            if (trabajosBuscados.includes(profession.skillName)) {
                                                 return {
                                                     ...prevState,
-                                                    trabajosBuscados: trabajosBuscados.filter((item) => item !== profession),
+                                                    trabajosBuscados: trabajosBuscados.filter((item) => item !== profession.skillName),
                                                 };
                                             } else {
                                                 return {
                                                     ...prevState,
-                                                    trabajosBuscados: [...trabajosBuscados, profession],
+                                                    trabajosBuscados: [...trabajosBuscados, profession.skillName],
                                                 };
                                             }
                                         })}
-                                        className={`selector-item ${userData?.trabajosBuscados?.includes(profession) ? 'selected' : ''}`}
+                                        className={`selector-item ${userData?.trabajosBuscados?.includes(profession.skillName) ? 'selected' : ''}`}
                                     >
-                                        {profession}
+                                        {profession.skillName}
                                     </div>
                                 ))}
                             </div>

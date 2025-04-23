@@ -1,13 +1,21 @@
 import React from 'react';
 import Image from 'next/image';
 import { FaMapMarkerAlt, FaStar } from 'react-icons/fa';
+import { Skill } from 'app/interfaces';
 
 interface HandymanData {
-    image: string;
+    averageRating: number;
+    coverageArea: string[];
+    email: string;
+    lastName: string;
     name: string;
-    location: string;
-    skills: string[];
+    personalDescription: string;
+    phone: string;
+    profilePicture: string;
     rating: number;
+    skills: Skill[];
+    totalRatings: number;
+    weightedRating: number;
 }
 
 interface HandymanCardProps {
@@ -30,7 +38,7 @@ export default function HandymanCard({ handymanData }: HandymanCardProps) {
             {/* Profile Image */}
             <div className="w-24 h-24 rounded-full overflow-hidden bg-white">
                 <Image
-                    src={handymanData.image}
+                    src={handymanData.profilePicture}
                     alt={handymanData.name}
                     width={96}
                     height={96}
@@ -42,7 +50,7 @@ export default function HandymanCard({ handymanData }: HandymanCardProps) {
             {/* Location */}
             <div className="flex items-center mt-2">
                 <FaMapMarkerAlt className="text-lg mr-2" style={{ color: '#7D867E' }} />
-                <p style={{ color: '#7D867E' }}>{handymanData.location}</p>
+                <p style={{ color: '#7D867E' }}>{handymanData.coverageArea.join(', ')}</p>
             </div>
             {/* Skills */}
             <div className="w-full mt-4">
@@ -52,7 +60,7 @@ export default function HandymanCard({ handymanData }: HandymanCardProps) {
                 <div className="flex flex-wrap mt-2" style={{ justifyContent: 'center' }}>
                     {handymanData.skills.map((skill, index) => (
                         <span key={index} className="value-skills" style={{ margin: '2px' }}>
-                            {skill}
+                            {skill.skillName}
                             {index < handymanData.skills.length - 1 ? ',' : '.'}
                         </span>
                     ))}
@@ -66,6 +74,7 @@ export default function HandymanCard({ handymanData }: HandymanCardProps) {
                 {Array.from({ length: emptyStars }).map((_, index) => (
                     <FaStar key={filledStars + index} className="text-gray-400 text-lg" />
                 ))}
+                <span className="ml-2 text-sm text-gray-500">({handymanData.totalRatings} votes)</span>
             </div>
         </div>
     );
