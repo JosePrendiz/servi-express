@@ -1,5 +1,6 @@
 import axios from "axios";
-import { PageParams, RegisterClientData, RegisterHandymanData } from "./interfaces";
+import { setCookie } from 'cookies-next';
+import { PageParams, RegisterClientData, RegisterHandymanData, UpdateClientData, UpdateHandymanData } from "./interfaces";
 
 const API_BASE_URL = "https://serviexpress-api.onrender.com";
 
@@ -23,9 +24,12 @@ export const authAPI = {
     try {
       const response = await apiClient.post("/auth/login", { email, googleId });
       setAuthHeader(response.data.accessToken);
-      return;
+      setCookie("accessToken", "true", { path: "/" });
+      return true;
     } catch (error) {
-      throw error;
+      if (axios.isAxiosError(error) && error.response?.status === 404) {
+        return false;
+      }
     }
   },
 };
@@ -110,21 +114,9 @@ export const handymenAPI = {
     }
   },
 
-  updateHandymanProfile: async (updateData: RegisterHandymanData) => {
+  updateHandymanProfile: async (updateData: UpdateHandymanData, email: string) => {
     try {
-      const response = await apiClient.put(`/handymen/update-profile/${updateData.email}`,
-        {
-          googleId: updateData.id,
-          name: updateData.givenName,
-          lastName: updateData.familyName,
-          profilePicture: updateData.picture,
-          email: updateData.email,
-          phone: updateData.phoneNumber,
-          skills: updateData.trabajosDisponibles,
-          coverageArea: updateData.zonasDisponibles,
-          personalDescription: updateData.description,
-        }
-      );
+      const response = await apiClient.put(`/handymen/update-handyman/${email}`, updateData);
       return response.data;
     } catch (error) {
       throw error;
@@ -154,22 +146,9 @@ export const clientsAPI = {
     }
   },
 
-  updateClientProfile: async (updateData: RegisterClientData) => {
+  updateClientProfile: async (updateData: UpdateClientData, email: string) => {
     try {
-      const response = await apiClient.put(`/clients/update-client/${updateData.email}`,
-        {
-          googleId: updateData.id,
-          name: updateData.givenName,
-          lastName: updateData.familyName,
-          profilePicture: updateData.picture,
-          email: updateData.email,
-          phone: updateData.phoneNumber,
-          municipality: updateData.municipio,
-          neighborhood: updateData.barrio,
-          address: updateData.direccion,
-          preferences: updateData.trabajosBuscados,
-        }
-      );
+      const response = await apiClient.put(`/clients/update-client/${email}`, updateData);
       return response.data;
     } catch (error) {
       throw error;

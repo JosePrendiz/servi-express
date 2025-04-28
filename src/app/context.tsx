@@ -20,7 +20,6 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     const [registerClientData, setRegisterClientData] = useState<RegisterClientData | null>(null);
     const [registerHandymanData, setRegisterHandymanData] = useState<RegisterHandymanData | null>(null);
     const [currentUser, setCurrentUser] = useState<User | null>(null);
-
     return (
         <AppContext.Provider value={{ thirdWebData, setThirdWebData, registerClientData, setRegisterClientData, registerHandymanData, setRegisterHandymanData, currentUser, setCurrentUser }}>
             {children}

@@ -7,7 +7,7 @@ import { useAppContext } from 'app/context';
 import Image from 'next/image';
 import { municipalities } from 'app/locations';
 import { RegisterClientData, ClientFormErrors, Skill } from 'app/interfaces';
-import { authAPI, clientsAPI, skillsAPI, usersAPI } from '../../app/axios'
+import { authAPI, clientsAPI, skillsAPI, usersAPI } from 'app/axios'
 
 interface RegisterPopupProps {
     closeModal: () => void;
@@ -74,10 +74,11 @@ export default function RegisterClientPopup({ closeModal, isConnected }: Registe
         }
         try {
             await clientsAPI.registerClient(userData);
-            await authAPI.login(userData.email, userData.id)
-            const user = await usersAPI.getUserProfile()
-            setCurrentUser(user);
-            closeModal();
+            if (await authAPI.login(userData.email, userData.id)) {
+                const user = await usersAPI.getUserProfile()
+                setCurrentUser(user);
+                closeModal();
+            }
         } catch (error) {
             console.error(error);
         }

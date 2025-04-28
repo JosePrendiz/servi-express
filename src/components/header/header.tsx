@@ -64,9 +64,19 @@ export default function Header() {
                     givenName: details.givenName,
                 });
                 if (details.email && details.id) {
-                    await authAPI.login(details.email, details.id)
-                    const user = await usersAPI.getUserProfile()
-                    setCurrentUser(user);
+                    if (await authAPI.login(details.email, details.id)) {
+                        const user = await usersAPI.getUserProfile()                        
+                        // if (details.picture !== user.profilePicture) {
+                        //     if (user.role === 'handyman') {
+                        //         handymenAPI.updateHandymanProfile({ profilePicture: details.picture }, user.email);
+                        //     } else {
+                        //         await clientsAPI.updateClientProfile({ profilePicture: details.picture }, user.email);
+                        //     }
+                        // }
+                        setCurrentUser(user);
+                    } else {
+                        openClientModal();
+                    }
                 }
             } catch (error) {
                 console.error(error);

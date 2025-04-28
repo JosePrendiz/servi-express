@@ -17,9 +17,36 @@ export interface User {
     municipality: string;
     neighborhood: string;
     isBanned: boolean;
+    personalDescription: string;
+    coverageArea: string[];
     address: string;
     preferences: Skill[];
     skills: Skill[];
+    [key: string]: unknown,
+}
+export interface UpdateClientData {
+    name?: string,
+    lastName?: string,
+    profilePicture?: string,
+    email?: string,
+    phone?: string,
+    municipality?: string,
+    neighborhood?: string,
+    address?: string,
+    preferences?: string[],
+    [key: string]: unknown,
+}
+
+export interface UpdateHandymanData {
+    name?: string,
+    lastName?: string,
+    profilePicture?: string,
+    email?: string,
+    phone?: string,
+    skills?: string[],
+    coverageArea?: string[],
+    personalDescription?: string,
+    [key: string]: unknown,
 }
 
 export interface RegisterClientData extends ThirdWebData {

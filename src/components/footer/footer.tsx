@@ -6,7 +6,7 @@ export default function Footer() {
     return (
         <footer className="flex justify-between items-center p-4 text-white bg-[#D9D9D9]">
             {/* Legal Buttons */}
-            <div className="flex space-x-10">
+            <div className="flex space-x-10 hide-on-small">
                 <Link href="/register">
                     <button className="no-bkgd-black">Sobre Nosotros</button>
                 </Link>
@@ -19,9 +19,9 @@ export default function Footer() {
             </div>
 
             {/* Social Icons */}
-            <div className="flex space-x-15 items-center">
+            <div className="center-on-small footer-socials">
                 <div>
-                    <label className="no-bkgd-black" style={{ cursor: 'default' }}>Síguenos:</label>
+                    <label className="no-bkgd-black hide-on-small" style={{ cursor: 'default' }}>Síguenos:</label>
                 </div>
                 <a href="https://www.facebook.com/ServiExpressNic" target="_blank" rel="noopener noreferrer">
                     <FaFacebook className="text-2xl text-black" />

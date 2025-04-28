@@ -6,6 +6,7 @@
   --foreground: #171717;
   --primary-green: #0D7A5F;
   --secondary-green: #0A5713;
+  --third-green: #558305;
 }
 
 @theme inline {
@@ -120,26 +121,6 @@ h3 {
   align-self: center;
 }
 
-.selector-item {
-  padding: 1rem;
-  border-radius: 0.5rem;
-  cursor: pointer;
-  border: 1px solid #d1d5db;
-  background-color: #e5e7eb;
-  color: #374151;
-  transition: all 0.2s ease-in-out;
-}
-
-.selector-item:hover {
-  border-color: #9ca3af;
-}
-
-.selector-item.selected {
-  background-color: var(--primary-green);
-  color: #ffffff;
-  border-color: var(--secondary-green);
-}
-
 /* Search Components */
 
 .searchbar-container {
@@ -214,6 +195,61 @@ h3 {
   background-color: #f3f4f6;
 }
 
+.selector-item {
+  cursor: pointer;
+  color: #000000;
+  padding: 0.5rem;
+  border: 2px solid #ccc;
+  border-radius: 8px;
+  margin: 5px;
+  transition: background-color 0.3s, border-color 0.3s;
+}
+
+.block-item {
+  padding: 0.5rem;
+  border: 2px solid #ccc;
+  border-radius: 8px;
+  margin: 5px;
+  background-color: var(--third-green);
+  color: white;
+  border-color: var(--third-green);
+}
+
+.selected {
+  background-color: var(--primary-green);
+  color: white;
+  border-color: var(--primary-green);
+}
+
+.selector-item:hover {
+  background-color: #f0f0f0;
+}
+
+.select-dropdown {
+  width: 100%;
+  padding: 0.75rem;
+  font-size: 1rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem;
+  background-color: #ffffff;
+  color: var(--third-green);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.select-dropdown:focus {
+  outline: none;
+  border-color: #10b981;
+  box-shadow: 0 4px 6px rgba(16, 185, 129, 0.25);
+}
+
+.select-dropdown option {
+  padding: 0.5rem;
+  font-size: 1rem;
+  color: #374151;
+  background-color: #ffffff;
+}
+
 /* Labels */
 .title-skills {
   color: #000000;
@@ -252,28 +288,13 @@ h3 {
   border-radius: 1rem;
 }
 
-/* Media */
-
-@media (max-width: 640px) {
-  .handymen-grid {
-    gap: 20px;
-    padding: 16px;
-  }
-}
-
-@media (min-width: 1024px) {
-  .handymen-grid {
-    gap: 32px;
-    padding: 32px;
-  }
-}
-
 /* Profile Page */
 
 .profile-container {
   margin: 0 auto;
-  height: 82vh;
+  min-height: calc(100vh - 150px);
   padding: 20px;
+  box-sizing: border-box;
 }
 
 .title {
@@ -287,8 +308,8 @@ h3 {
 .main-content {
   display: flex;
   gap: 20px;
-  width: 80%;
-  justify-content: space-around;
+  flex-wrap: wrap;
+  justify-content: center;
   margin: 0 auto;
 }
 
@@ -298,16 +319,17 @@ h3 {
   box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
   border-radius: 20px;
   padding: 20px;
+  box-sizing: border-box;
 }
 
 .left-container {
-  display: flex;
-  flex-direction: row;
-  width: 60%;
+  flex: 1 1 50%;
+  max-width: 50%;
 }
 
 .right-container {
-  width: 30%;
+  flex: 1 1 20%;
+  max-width: 20%;
 }
 
 .profile-info,
@@ -317,6 +339,12 @@ h3 {
   flex-direction: column;
   gap: 20px;
   height: 100%;
+}
+
+.block-layout {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
 }
 
 .profile-info {
@@ -345,9 +373,19 @@ h3 {
   font-weight: bold;
 }
 
-.profile-item span {
-  font-size: 18px;
-  color: #558305;
+.profile-item span,
+.profile-item input {
+  width: 100%;
+  font-size: 1.12rem;
+  color: var(--third-green);
+}
+
+.profile-item input {
+  padding: 0.75rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem;
+  background-color: #ffffff;
 }
 
 .profile-item-row {
@@ -355,10 +393,55 @@ h3 {
   gap: 20px;
 }
 
-.preference-item {
+.footer-socials {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 18px;
-  color: #558305;
+  justify-content: center;
+  gap: 20px;
+}
+
+/* Media */
+
+@media (max-width: 640px) {
+  .handymen-grid {
+    gap: 20px;
+    padding: 16px;
+  }
+}
+
+@media (max-width: 750) {
+
+  .left-container,
+  .right-container {
+    flex: 1 1 100%;
+    max-width: 100%;
+    width: 100%;
+  }
+
+  .main-content {
+    flex-direction: column;
+  }
+}
+
+@media (min-width: 1024px) {
+  .handymen-grid {
+    gap: 32px;
+    padding: 32px;
+  }
+}
+
+@media (max-width: 1024px) {
+  .center-on-small {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    width: 100%;
+  }
+
+  .center-on-small a {
+    margin: 0 auto;
+  }
+
+  .hide-on-small {
+    display: none;
+  }
 }

@@ -66,10 +66,11 @@ export default function RegisterHandymanPopup({ closeModal, isConnected }: Regis
         }
         try {
             await handymenAPI.registerHandyman(userData);
-            await authAPI.login(userData.email, userData.id)
-            const user = await usersAPI.getUserProfile()
-            setCurrentUser(user);
-            closeModal();
+            if (await authAPI.login(userData.email, userData.id)) {
+                const user = await usersAPI.getUserProfile()
+                setCurrentUser(user);
+                closeModal();
+            }
         } catch (error) {
             console.error(error);
         }
