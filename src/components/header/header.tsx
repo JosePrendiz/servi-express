@@ -16,7 +16,7 @@ import { CgProfile } from "react-icons/cg";
 import { FaRegCalendarAlt } from "react-icons/fa";
 import { useAppContext } from 'app/context';
 import { ThirdWebData } from 'app/interfaces';
-import { authAPI, usersAPI } from 'app/axios';
+import { authAPI, usersAPI, handymenAPI, clientsAPI } from 'app/axios';
 
 export default function Header() {
 
@@ -63,16 +63,16 @@ export default function Header() {
                     familyName: details.familyName,
                     givenName: details.givenName,
                 });
-                if (details.email && details.id) {
+                if (details.email && details.id && activeAccount) {
                     if (await authAPI.login(details.email, details.id)) {
-                        const user = await usersAPI.getUserProfile()                        
-                        // if (details.picture !== user.profilePicture) {
-                        //     if (user.role === 'handyman') {
-                        //         handymenAPI.updateHandymanProfile({ profilePicture: details.picture }, user.email);
-                        //     } else {
-                        //         await clientsAPI.updateClientProfile({ profilePicture: details.picture }, user.email);
-                        //     }
-                        // }
+                        const user = await usersAPI.getUserProfile()
+                        if (details.picture !== user.profilePicture) {
+                            if (user.role === 'handyman') {
+                                handymenAPI.updateHandymanProfile({ profilePicture: details.picture }, user.email);
+                            } else {
+                                await clientsAPI.updateClientProfile({ profilePicture: details.picture }, user.email);
+                            }
+                        }
                         setCurrentUser(user);
                     } else {
                         openClientModal();
@@ -148,8 +148,8 @@ export default function Header() {
                         )}
                     </div>}
             </div>
-            {isClientModalOpen && <RegisterClientPopup closeModal={closeClientModal} isConnected={!!activeAccount} />}
-            {isHandymanModalOpen && <RegisterHandymanPopup closeModal={closeHandymanModal} isConnected={!!activeAccount} />}
+            {isClientModalOpen && !currentUser && <RegisterClientPopup closeModal={closeClientModal} isConnected={!!activeAccount} />}
+            {isHandymanModalOpen && (currentUser?.role === 'client') && <RegisterHandymanPopup closeModal={closeHandymanModal} isConnected={!!activeAccount} />}
         </header >
     );
 }

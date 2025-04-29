@@ -81,7 +81,6 @@ export default function Profile() {
                     skills: shownSkills,
                     coverageArea: coverageArea,
                 };
-                console.log(updatedUser);
                 delete updatedUser.municipality;
                 delete updatedUser.neighborhood;
                 delete updatedUser.address;
@@ -92,7 +91,6 @@ export default function Profile() {
                     }
                 });
                 if (Object.keys(changedData).length > 0) {
-                    console.log(changedData);
                     await handymenAPI.updateHandymanProfile(changedData, currentUser.email);
                     setIsEditing(false);
                 }
@@ -105,16 +103,22 @@ export default function Profile() {
 
     };
 
+    const fetchSkills = async () => {
+        try {
+            const response = await skillsAPI.getAllSkills();
+            setSkills(response || []);
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
     useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const response = await skillsAPI.getAllSkills();
-                setSkills(response || []);
-            } catch (err) {
-                console.error(err);
-            }
-        };
-        fetchData();
+        if (currentUser && isEditing && skills.length === 0) {
+            fetchSkills();
+        }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [currentUser, isEditing]);
+    useEffect(() => {
         if (currentUser) {
             setIsClient(currentUser.role === 'client');
             setShownSkills(currentUser?.preferences?.map((pref) => pref.skillName) || currentUser?.skills?.map((skill) => skill.skillName) || []);
