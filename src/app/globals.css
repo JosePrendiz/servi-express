@@ -89,6 +89,27 @@ h3 {
   margin-right: auto;
 }
 
+.contact-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+}
+
+.contact-link {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  color: #333;
+  font-size: 16px;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+.contact-link:hover {
+  color: var(--third-green);
+}
+
 .dark-green-btn:hover {
   background-color: #1A4231;
 }
@@ -399,9 +420,42 @@ h3 {
   gap: 20px;
 }
 
+.handyman-page-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 1.5rem;
+  max-width: 100rem;
+  margin: 0 auto;
+  background-color: #f9fafb;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+  gap: 1rem;
+}
+
+.two-thirds-container {
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+  align-items: center;
+  width: 66.67%;
+}
+
+.one-third-container {
+  width: 33.33%;
+  padding: 1rem;
+}
+
 /* Media */
 
 @media (max-width: 640px) {
+  .contact-row {
+    flex-direction: column;
+  }
+
   .handymen-grid {
     gap: 20px;
     padding: 16px;
@@ -430,6 +484,19 @@ h3 {
 }
 
 @media (max-width: 1024px) {
+  .handyman-page-container{
+    flex-direction: column;
+    align-items: center;
+  }
+  .two-thirds-container {
+    width: 100%;
+    padding: 1rem;
+  }
+  .one-third-container {
+    width: 100%;
+    padding: 1rem;
+    text-align: center;
+  }
   .center-on-small {
     display: flex;
     justify-content: space-around;

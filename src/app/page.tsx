@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import SearchBar from '@/components/search/searchBar';
 import HandymanCard from '@/components/cards/handymanCard';
 import { handymenAPI } from './axios'
+import Loading from '@/components/loader';
 
 export default function Home() {
   const [handymen, setHandymen] = useState([]);
@@ -18,7 +19,7 @@ export default function Home() {
         });
         setHandymen(response || []);
       } catch (err) {
-        console.error(err);         
+        console.error(err);
       }
     };
     fetchHandymen();
@@ -29,9 +30,14 @@ export default function Home() {
       <SearchBar />
       <h2 className="text-center">Nuestros Mejores Handymen</h2>
       <div className="handymen-grid">
-        {handymen.map((handyman, index) => (
-          <HandymanCard key={index} handymanData={handyman} />
-        ))}
+        {handymen.length === 0 ? (
+          <Loading message="Cargando handymen..." />
+        ) : (
+          handymen.map((handyman, index) => (
+            <HandymanCard key={index} handymanData={handyman} />
+          ))
+        )}
+
       </div>
     </div>
   );

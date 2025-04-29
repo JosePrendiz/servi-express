@@ -1,22 +1,8 @@
 import React from 'react';
 import Image from 'next/image';
 import { FaMapMarkerAlt, FaStar } from 'react-icons/fa';
-import { Skill } from 'app/interfaces';
-
-interface HandymanData {
-    averageRating: number;
-    coverageArea: string[];
-    email: string;
-    lastName: string;
-    name: string;
-    personalDescription: string;
-    phone: string;
-    profilePicture: string;
-    rating: number;
-    skills: Skill[];
-    totalRatings: number;
-    weightedRating: number;
-}
+import { HandymanData } from 'app/interfaces';
+import Link from 'next/link';
 
 interface HandymanCardProps {
     handymanData: HandymanData;
@@ -25,9 +11,11 @@ interface HandymanCardProps {
 export default function HandymanCard({ handymanData }: HandymanCardProps) {
     const filledStars = Math.floor(handymanData.rating);
     const emptyStars = 5 - filledStars;
+    const slug = handymanData._id;
 
     return (
-        <div
+        <Link
+            href={`/handyman/${slug}`}
             className="flex flex-col items-center p-4 rounded-lg shadow-md "
             style={{
                 width: '300px',
@@ -74,8 +62,8 @@ export default function HandymanCard({ handymanData }: HandymanCardProps) {
                 {Array.from({ length: emptyStars }).map((_, index) => (
                     <FaStar key={filledStars + index} className="text-gray-400 text-lg" />
                 ))}
-                <span className="ml-2 text-sm text-gray-500">({handymanData.totalRatings} votes)</span>
+                <span className="ml-2 text-sm text-gray-500">({handymanData.totalRatings} votos)</span>
             </div>
-        </div>
+        </Link>
     );
 }

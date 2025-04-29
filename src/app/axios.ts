@@ -1,6 +1,6 @@
 import axios from "axios";
 import { setCookie } from 'cookies-next';
-import { PageParams, RegisterClientData, RegisterHandymanData, UpdateClientData, UpdateHandymanData } from "./interfaces";
+import { PageParams, RegisterClientData, RegisterHandymanData, RequestServiceData, UpdateClientData, UpdateHandymanData } from "./interfaces";
 
 const API_BASE_URL = "https://serviexpress-api.onrender.com";
 
@@ -38,7 +38,7 @@ export const usersAPI = {
   getAnyUser: async (identifier: string) => {
     try {
       const response = await apiClient.get(`/users/get-any-user/${identifier}`);
-      return response.data;
+      return response.data.data;
     } catch (error) {
       throw error;
     }
@@ -78,6 +78,17 @@ export const ratingAPI = {
   rateHandyman: async (handymanEmail: string, rating: number) => {
     try {
       const response = await apiClient.post(`/rating`, { handymanEmail, rating });
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+};
+
+export const serviceAPI = {
+  requestService: async (requestServiceData: RequestServiceData) => {
+    try {
+      const response = await apiClient.post(`/requests/client/create-request`, requestServiceData);
       return response.data;
     } catch (error) {
       throw error;

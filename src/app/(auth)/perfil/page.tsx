@@ -5,6 +5,7 @@ import { Skill, UpdateClientData, UpdateHandymanData } from 'app/interfaces';
 import { useAppContext } from 'app/context';
 import { municipalities } from 'app/locations';
 import { clientsAPI, handymenAPI, skillsAPI, usersAPI } from 'app/axios'
+import Loading from "@/components/loader";
 
 export default function Profile() {
     const { thirdWebData, currentUser, setCurrentUser } = useAppContext();
@@ -116,7 +117,7 @@ export default function Profile() {
         if (currentUser && isEditing && skills.length === 0) {
             fetchSkills();
         }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [currentUser, isEditing]);
     useEffect(() => {
         if (currentUser) {
@@ -135,6 +136,10 @@ export default function Profile() {
             });
         }
     }, [currentUser]);
+
+    if (!currentUser) {
+        return <Loading message="Obteniendo datos del usuario..." />;
+    }
 
     return (
         <div className="profile-container">

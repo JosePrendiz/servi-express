@@ -94,3 +94,31 @@ export interface Skill {
     skillName: string;
     description: string;
 }
+
+export interface HandymanData {
+    _id: string;
+    averageRating: number;
+    coverageArea: string[];
+    email: string;
+    lastName: string;
+    name: string;
+    personalDescription: string;
+    phone: string;
+    profilePicture: string;
+    rating: number;
+    skills: Skill[];
+    totalRatings: number;
+    weightedRating: number;
+}
+
+export interface RequestServiceData {
+    title: string,
+    handymanEmail: string,
+    description: string,
+    location: {
+        municipality: string,
+        neighborhood: string,
+        address: string
+    },
+    categories: string[]
+}
