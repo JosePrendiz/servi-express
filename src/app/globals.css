@@ -449,6 +449,64 @@ h3 {
   padding: 1rem;
 }
 
+.action-denied-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.6);
+  /* Semi-transparent black */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  /* Ensures it appears above other elements */
+}
+
+.action-denied-popup {
+  background-color: #ffffff;
+  /* White background */
+  border-radius: 12px;
+  padding: 24px;
+  max-width: 400px;
+  width: 90%;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  font-family: Arial, sans-serif;
+}
+
+.action-denied-popup p {
+  color: #1f2937;
+  /* Dark gray text */
+}
+
+.action-denied-button {
+  margin-top: 16px;
+  padding: 12px 24px;
+  background-color: #2563eb;
+  /* Blue background */
+  color: #ffffff;
+  /* White text */
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.action-denied-button:hover {
+  background-color: #1e40af;
+  /* Darker blue on hover */
+}
+
+.action-denied-button:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.5);
+  /* Focus ring */
+}
+
 /* Media */
 
 @media (max-width: 640px) {
@@ -484,19 +542,22 @@ h3 {
 }
 
 @media (max-width: 1024px) {
-  .handyman-page-container{
+  .handyman-page-container {
     flex-direction: column;
     align-items: center;
   }
+
   .two-thirds-container {
     width: 100%;
     padding: 1rem;
   }
+
   .one-third-container {
     width: 100%;
     padding: 1rem;
     text-align: center;
   }
+
   .center-on-small {
     display: flex;
     justify-content: space-around;

@@ -17,7 +17,7 @@ export default function RegisterHandymanPopup({ closeModal, isConnected }: Regis
 
     const [trabajos, setTrabajos] = useState([]);
 
-    const { registerHandymanData, thirdWebData, setRegisterHandymanData, setCurrentUser } = useAppContext();
+    const { registerHandymanData, thirdWebData, setRegisterHandymanData, setCurrentUser, setChatToken } = useAppContext();
 
     const [userData, setUserData] = useState<RegisterHandymanData | null>(null);
     const [registerStage, setRegisterStage] = useState<string>('baseData');
@@ -66,7 +66,9 @@ export default function RegisterHandymanPopup({ closeModal, isConnected }: Regis
         }
         try {
             await handymenAPI.registerHandyman(userData);
-            if (await authAPI.login(userData.email, userData.id)) {
+            const streamToken = await authAPI.login(userData.email, userData.id)
+            setChatToken(streamToken);
+            if (streamToken) {
                 const user = await usersAPI.getUserProfile()
                 setCurrentUser(user);
                 closeModal();

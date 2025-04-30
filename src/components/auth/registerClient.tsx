@@ -18,7 +18,7 @@ export default function RegisterClientPopup({ closeModal, isConnected }: Registe
 
     const [trabajadoresBuscados, setTrabajadoresBuscados] = useState([]);
 
-    const { registerClientData, thirdWebData, setRegisterClientData, setCurrentUser } = useAppContext();
+    const { registerClientData, thirdWebData, setRegisterClientData, setCurrentUser, setChatToken } = useAppContext();
 
     const [userData, setUserData] = useState<RegisterClientData | null>(null);
     const [registerStage, setRegisterStage] = useState<string>('baseData');
@@ -74,7 +74,9 @@ export default function RegisterClientPopup({ closeModal, isConnected }: Registe
         }
         try {
             await clientsAPI.registerClient(userData);
-            if (await authAPI.login(userData.email, userData.id)) {
+            const streamToken = await authAPI.login(userData.email, userData.id)
+            setChatToken(streamToken);
+            if (streamToken) {
                 const user = await usersAPI.getUserProfile()
                 setCurrentUser(user);
                 closeModal();

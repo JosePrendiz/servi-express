@@ -8,6 +8,7 @@ export interface ThirdWebData {
 }
 
 export interface User {
+    _id: string;
     name: string;
     lastName: string;
     profilePicture: string;

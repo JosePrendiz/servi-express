@@ -25,7 +25,7 @@ export const authAPI = {
       const response = await apiClient.post("/auth/login", { email, googleId });
       setAuthHeader(response.data.accessToken);
       setCookie("accessToken", "true", { path: "/" });
-      return true;
+      return response.data.chatToken;
     } catch (error) {
       if (axios.isAxiosError(error) && error.response?.status === 404) {
         return false;
@@ -89,11 +89,20 @@ export const serviceAPI = {
   requestService: async (requestServiceData: RequestServiceData) => {
     try {
       const response = await apiClient.post(`/requests/client/create-request`, requestServiceData);
-      return response.data;
+      return response.data.data;
     } catch (error) {
       throw error;
     }
   },
+
+  getCurrentService: async (handymanId: string) => {
+    try {
+      const response = await apiClient.get(`/requests/client/request-handyman/${handymanId}`);
+      return response.data.requestId;
+    } catch (error) {
+      throw error;
+    }
+  }
 };
 
 export const handymenAPI = {

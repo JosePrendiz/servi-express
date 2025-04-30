@@ -1,16 +1,23 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 'use client';
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
-import { usersAPI } from 'app/axios';
+import { serviceAPI, usersAPI } from 'app/axios';
+import { useAppContext } from 'app/context';
 import { FaStar, FaWhatsapp, FaEnvelope, FaMapMarkerAlt } from 'react-icons/fa';
 import Image from 'next/image';
 import { HandymanData } from 'app/interfaces';
 import Loading from '@/components/loader';
 import StartServiceRequest from '@/components/service/serviceRequest';
+import StreamChat from '@/components/stream/serviceChat';
 
 export default function HandymanProfile() {
+    const { currentUser } = useAppContext();
+
     const { slug } = useParams();
+
     const [handyman, setHandyman] = useState<HandymanData | null>(null);
+    const [currentService, setCurrentService] = useState<string | null>(null);
 
     const getHandyman = async () => {
         try {
@@ -21,9 +28,30 @@ export default function HandymanProfile() {
         }
     };
 
+    const getCurrentService = async () => {
+        try {
+            const serviceId = await serviceAPI.getCurrentService(slug as string);
+            if (serviceId) {
+                setCurrentService(serviceId);
+            }
+        } catch (err) {
+            console.error(err);
+        }
+    }
+
+    const handleServiceResponse = (response: string) => {
+        setCurrentService(response);
+        console.log('Service request response received:', response);
+    };
+
+    useEffect(() => {
+        if (currentUser?.role === 'client') {
+            getCurrentService();
+        }
+    }, [currentUser]);
+
     useEffect(() => {
         getHandyman();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     if (!handyman) {
@@ -66,7 +94,7 @@ export default function HandymanProfile() {
                 </div>
                 {/* Coverage Area */}
                 <div className="mt-4">
-                    <h3 className="text-lg font-semibold">Área de Covertura</h3>
+                    <h3 className="text-lg font-semibold">Área de Cobertura</h3>
                     <p className="flex items-center text-gray-700 mt-2">
                         <FaMapMarkerAlt className="mr-2" /> {handyman.coverageArea.join(', ')}
                     </p>
@@ -87,7 +115,11 @@ export default function HandymanProfile() {
                 </div>
             </div>
             <div className="one-third-container">
-                <StartServiceRequest handyman={handyman} />
+                {!currentService ?
+                    <StartServiceRequest handyman={handyman} role={currentUser?.role} onServiceResponse={handleServiceResponse} />
+                    :
+                    <StreamChat channelId={`request-${currentService}`} />
+                }
             </div>
         </div>
     );

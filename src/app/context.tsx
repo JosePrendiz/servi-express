@@ -11,6 +11,8 @@ interface AppContextType {
     setRegisterHandymanData: (registerHandymanData: RegisterHandymanData | null) => void;
     currentUser: User | null;
     setCurrentUser: (user: User | null) => void;
+    chatToken: string | null;
+    setChatToken: (chatToken: string) => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -20,8 +22,15 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     const [registerClientData, setRegisterClientData] = useState<RegisterClientData | null>(null);
     const [registerHandymanData, setRegisterHandymanData] = useState<RegisterHandymanData | null>(null);
     const [currentUser, setCurrentUser] = useState<User | null>(null);
+    const [chatToken, setChatToken] = useState<string | null>(null);
     return (
-        <AppContext.Provider value={{ thirdWebData, setThirdWebData, registerClientData, setRegisterClientData, registerHandymanData, setRegisterHandymanData, currentUser, setCurrentUser }}>
+        <AppContext.Provider value={{
+            thirdWebData, setThirdWebData,
+            registerClientData, setRegisterClientData,
+            registerHandymanData, setRegisterHandymanData,
+            currentUser, setCurrentUser,
+            chatToken, setChatToken
+        }}>
             {children}
         </AppContext.Provider>
     );

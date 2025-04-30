@@ -4,7 +4,15 @@ import { municipalities } from 'app/locations';
 import { HandymanData } from 'app/interfaces';
 import { serviceAPI } from 'app/axios';
 
-export default function StartServiceRequest({ handyman }: { handyman: HandymanData }) {
+export default function StartServiceRequest({
+    handyman,
+    role,
+    onServiceResponse,
+}: {
+    handyman: HandymanData;
+    role: string | undefined;
+    onServiceResponse: (response: string) => void;
+}) {
     const [formData, setFormData] = useState({
         title: '',
         description: '',
@@ -25,12 +33,16 @@ export default function StartServiceRequest({ handyman }: { handyman: HandymanDa
             [name]: value,
         }));
 
-        if (name === 'municipality') {      
+        if (name === 'municipality') {
             setFormData((prev) => ({ ...prev, neighborhood: '' }));
         }
     };
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+        if (role === 'handyman') {
+            alert('No puedes solicitar un servicio como un trabajador. Por favor, inicia sesión como cliente.');
+            return;
+        }
         e.preventDefault();
         const payload = {
             title: formData.title,
@@ -46,7 +58,7 @@ export default function StartServiceRequest({ handyman }: { handyman: HandymanDa
 
         try {
             const response = await serviceAPI.requestService(payload);
-            console.log(response);
+            onServiceResponse(response.requestId);
         } catch (error) {
             console.error('Error:', error);
             alert('Ocurrió un error al solicitar el servicio. Por favor, inténtelo de nuevo más tarde.');

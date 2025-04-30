@@ -20,7 +20,7 @@ import { authAPI, usersAPI, handymenAPI, clientsAPI } from 'app/axios';
 
 export default function Header() {
 
-    const { setThirdWebData, setCurrentUser, currentUser } = useAppContext();
+    const { setThirdWebData, setCurrentUser, currentUser, setChatToken } = useAppContext();
     const [isClientModalOpen, setIsClientModalOpen] = useState<boolean>(false);
     const [isHandymanModalOpen, setIsHandymanModalOpen] = useState<boolean>(false);
     const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false);
@@ -64,7 +64,9 @@ export default function Header() {
                     givenName: details.givenName,
                 });
                 if (details.email && details.id && activeAccount) {
-                    if (await authAPI.login(details.email, details.id)) {
+                    const streamToken = await authAPI.login(details.email, details.id)
+                    setChatToken(streamToken);
+                    if (streamToken) {
                         const user = await usersAPI.getUserProfile()
                         if (details.picture !== user.profilePicture) {
                             if (user.role === 'handyman') {
