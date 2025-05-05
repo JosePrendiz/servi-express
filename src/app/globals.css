@@ -515,6 +515,27 @@ h3 {
   cursor: pointer;
 }
 
+.no-service-message {
+  width: 80%;
+  height: 80%;
+  display: flex;
+  margin: 0 auto;
+  justify-content: center;
+  align-items: center;
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  text-align: center;
+  padding: 16px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.no-service-message p {
+  font-size: 1.2rem;
+  color: #555;
+  margin: 0;
+}
+
 /* Media */
 
 @media (max-width: 640px) {
@@ -565,7 +586,7 @@ h3 {
 
   .one-third-container {
     width: 100%;
-    padding: 1rem;
+    padding: 0;
     text-align: center;
   }
 

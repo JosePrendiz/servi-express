@@ -6,6 +6,8 @@ import { Message } from 'app/interfaces';
 import Loading from '../loader';
 import Image from 'next/image';
 import './chatStyles.css';
+import { quotationAPI, serviceAPI } from 'app/axios';
+import UserActions from './userActions';
 
 const client = new StreamChat("xevpw6wvqw5s");
 
@@ -15,26 +17,79 @@ export default function CustomStreamChat({ channelId }: { channelId: string }) {
     const [newMessage, setNewMessage] = useState<string>('');
     const [channel, setChannel] = useState<Channel | null>(null);
     const [loading, setLoading] = useState(true);
+    const [quotationAmount, setQuotationAmount] = useState<string>('');
 
     const messageListRef = useRef<HTMLDivElement>(null);
 
-    useEffect(() => {
+    const handleSendMessage = async () => {
+        if (!newMessage.trim()) return;
+        try {
+            await channel?.sendMessage({
+                text: newMessage,
+            });
+            setNewMessage('');
+        } catch (error) {
+            console.error("Error sending message:", error);
+        }
+    };
 
+    const handleAcceptRequest = async () => {
+        try {
+            await serviceAPI.handymanAcceptRequests((channel?.data?.id as string).split('-')[1])
+        } catch (error) {
+            console.error("Error accepting request:", error);
+        }
+    };
+
+    const handleCancelRequest = async () => {
+        try {
+            await serviceAPI.handymanRejectRequests((channel?.data?.id as string).split('-')[1])
+        } catch (error) {
+            console.error("Error canceling request:", error);
+        }
+    };
+
+    const handleAcceptQuote = async () => {
+        try {
+            await quotationAPI.clientAcceptQuote(channel?.data?.quotationId as string)
+        } catch (error) {
+            console.error("Error accepting request:", error);
+        }
+    };
+
+    const handleCancelQuote = async () => {
+        try {
+            await quotationAPI.clientRejectQuote(channel?.data?.quotationId as string)
+        } catch (error) {
+            console.error("Error canceling request:", error);
+        }
+    };
+
+    const handleCreateQuotation = async () => {
+        if (!quotationAmount.trim()) return;
+        try {
+            await quotationAPI.createQuotation((channel?.data?.id as string).split('-')[1], parseFloat(quotationAmount));
+            setQuotationAmount('');
+        } catch (error) {
+            console.error("Error creating quotation:", error);
+        }
+    };
+
+    useEffect(() => {
         const initChat = async () => {
             try {
                 await client.connectUser(
                     { id: currentUser?._id as string, name: currentUser?.name },
                     chatToken
                 );
-
                 const channel = client.channel("messaging", channelId);
                 await channel.watch();
                 setChannel(channel);
-
                 setMessages(channel.state.messages as unknown as Message[]);
 
                 channel.on("message.new", (event) => {
                     setMessages((prevMessages) => [...prevMessages, event.message] as unknown as Message[]);
+                    console.log(channel);
                 });
             } catch (error) {
                 console.error("Error initializing chat:", error);
@@ -53,25 +108,76 @@ export default function CustomStreamChat({ channelId }: { channelId: string }) {
         }
     }, [messages]);
 
-    const handleSendMessage = async () => {
-        if (!newMessage.trim()) return;
-        try {
-            await channel?.sendMessage({
-                text: newMessage,
-            });
-            setNewMessage('');
-        } catch (error) {
-            console.error("Error sending message:", error);
-        }
-    };
-
     if (loading) return <Loading message="Cargando Chat" />;
 
     return (
         <div className="custom-chat-container">
+            {currentUser?.role === 'handyman' && channel?.data?.requestStatus === 'pending' && (
+                <UserActions
+                    title="¿Aceptar esta solicitud?"
+                    description="Por favor confirma si deseas aceptar o rechazar esta solicitud antes de continuar."
+                    buttons={[
+                        { label: "Aceptar", onClick: handleAcceptRequest, className: "accept-btn" },
+                        { label: "Rechazar", onClick: handleCancelRequest, className: "cancel-btn" },
+                    ]}
+                />
+            )}
+            {currentUser?.role === 'client' && channel?.data?.requestStatus === 'rejected' && (
+                <UserActions
+                    title="Solicitud Rechazada"
+                    description="Su solicitud fue rechazada por el handyman."
+                    buttons={[
+                        { label: "Aceptar", onClick: () => { window.location.reload(); }, className: "accept-btn" },
+                    ]}
+                />
+            )}
+            {currentUser?.role === 'handyman' && channel?.data?.requestStatus === 'rejected' && (
+                <UserActions
+                    title="Solicitud Rechazada"
+                    description="Rechazaste la solicitud de este cliente."
+                    buttons={[
+                        { label: "Aceptar", onClick: () => { window.location.reload(); }, className: "accept-btn" },
+                    ]}
+                />
+            )}
+            {currentUser?.role === 'handyman' && channel?.data?.requestStatus === 'quoted' && (
+                <UserActions
+                    title="Cotización Enviada"
+                    description="Esperando confirmación del cliente."
+                    buttons={[
+
+                    ]}
+                />
+            )}
+            {currentUser?.role === 'client' && channel?.data?.requestStatus === 'quoted' && (
+                <UserActions
+                    title="Cotización Recibida"
+                    description={`Costo sugerido por el Handyman: $${channel.data.quotationValue}`}
+                    buttons={[
+                        { label: "Aceptar", onClick: handleAcceptQuote, className: "accept-btn" },
+                        { label: "Rechazar", onClick: handleCancelQuote, className: "cancel-btn" },
+                    ]}
+                />
+            )}
+            {currentUser?.role === 'handyman' && channel?.data?.requestStatus === 'accepted' && (
+                <div className="quotation-section">
+                    <h2>Crear Cotización</h2>
+                    <div className="quotation-input-group">
+                        <input
+                            type="number"
+                            value={quotationAmount}
+                            onChange={(e) => setQuotationAmount(e.target.value)}
+                            placeholder="Monto en USD"
+                        />
+                        <button onClick={handleCreateQuotation} disabled={!quotationAmount.trim()}>
+                            Enviar Cotización
+                        </button>
+                    </div>
+                </div>
+            )}
             <div className="message-list" ref={messageListRef}>
                 {messages.map((msg) => {
-                    const isSystemMessage = !msg.user.name;
+                    const isSystemMessage = !msg.user.name || msg.user.name === 'Servi Express';
                     const isMyMessage = msg.user.id === currentUser?._id;
 
                     return (
@@ -95,7 +201,7 @@ export default function CustomStreamChat({ channelId }: { channelId: string }) {
                             )}
                             <div>
                                 {!isSystemMessage && <div className="message-user">{msg.user.name}</div>}
-                                <div className="message-text">{msg.text}</div>
+                                <div className="message-text" dangerouslySetInnerHTML={{ __html: msg.text }} />
                                 {msg.user.name &&
                                     <div className="message-time">
                                         {new Date(msg.created_at).toLocaleTimeString()}

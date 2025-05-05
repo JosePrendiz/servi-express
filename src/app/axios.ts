@@ -176,6 +176,35 @@ export const serviceAPI = {
 
 };
 
+export const quotationAPI = {
+  createQuotation: async (requestID: string, amount: number) => {
+    try {
+      const response = await apiClient.post(`/quotations/handyman/create-quotation/${requestID}`, { amount, description: 'null' });
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+  clientAcceptQuote: async (requestID: string) => {
+    try {
+      const response = await apiClient.patch(`/quotations/client/accept-quotation/${requestID}`);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  clientRejectQuote: async (requestID: string) => {
+    try {
+      const response = await apiClient.patch(`/quotations/client/reject-quotation/${requestID}`);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+};
+
 export const handymenAPI = {
   registerHandyman: async (handymanData: RegisterHandymanData) => {
     try {

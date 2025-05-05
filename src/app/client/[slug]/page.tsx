@@ -6,7 +6,7 @@ import { serviceAPI, usersAPI } from 'app/axios';
 import { useAppContext } from 'app/context';
 import { FaWhatsapp, FaEnvelope, FaMapMarkerAlt } from 'react-icons/fa';
 import Image from 'next/image';
-import { ClientData, ServiceRequest } from 'app/interfaces';
+import { ClientData } from 'app/interfaces';
 import Loading from '@/components/loader';
 import StreamChat from '@/components/stream/serviceChat';
 
@@ -29,12 +29,9 @@ export default function ClientProfile() {
 
     const getCurrentService = async () => {
         try {
-            const clientServices = await serviceAPI.getHandymanRequests();
-            const targetChannel = clientServices.find(
-                (service: ServiceRequest) => service.clientId._id === slug
-            );
-            if (targetChannel._id) {
-                setCurrentService(targetChannel._id);
+            const serviceId = await serviceAPI.getCurrentService(slug as string);
+            if (serviceId) {
+                setCurrentService(serviceId);
             }
         } catch (err) {
             console.error(err);
@@ -104,8 +101,12 @@ export default function ClientProfile() {
                 </div>
             </div>
             <div className="one-third-container">
-                {currentService &&
+                {currentService ?
                     <StreamChat channelId={`request-${currentService}`} />
+                    :
+                    <div className="no-service-message">
+                        <p>No hay un servicio activo con este cliente actualmente.</p>
+                    </div>
                 }
             </div>
         </div>

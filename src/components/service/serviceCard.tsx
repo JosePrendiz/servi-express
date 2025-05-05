@@ -26,6 +26,15 @@ const ActiveServices = ({ channel }: { channel: ServiceRequest }) => {
     }
 
     const markAsRead = async () => {
+        if (!client.userID) {
+            await client.connectUser(
+                { id: currentUser?._id as string, name: currentUser?.name },
+                chatToken
+            );
+        }
+        const streamChannel = client.channel('messaging', `request-${channel._id}`);
+        await streamChannel.watch();
+        await streamChannel.markRead();
         if (currentUser?.role === 'handyman') {
             window.location.href = `/client/${channel.clientId._id}`;
         } else if (currentUser?.role === 'client') {
