@@ -41,12 +41,13 @@ export default function HandymanProfile() {
 
     const handleServiceResponse = (response: string) => {
         setCurrentService(response);
-        console.log('Service request response received:', response);
     };
 
     useEffect(() => {
         if (currentUser?.role === 'client') {
             getCurrentService();
+        } else if (currentUser?.role === 'handyman') {
+            window.location.href = '/'
         }
     }, [currentUser]);
 

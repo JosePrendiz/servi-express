@@ -7,7 +7,7 @@ export default function SearchBar() {
 
   const handleSearch = () => {
     if (query) {
-      console.log('Searching for:', query);
+      console.info('Searching for:', query);
     }
   };
 

@@ -111,6 +111,19 @@ export interface HandymanData {
     totalRatings: number;
     weightedRating: number;
 }
+export interface ClientData {
+    _id: string;
+    address: string;
+    neighborhood: string;
+    email: string;
+    lastName: string;
+    name: string;
+    municipality: string;
+    personalDescription: string;
+    phone: string;
+    profilePicture: string;
+    preferences: Skill[];
+}
 
 export interface RequestServiceData {
     title: string,
@@ -122,4 +135,30 @@ export interface RequestServiceData {
         address: string
     },
     categories: string[]
+}
+
+export interface ServiceRequest {
+    title: string;
+    description: string;
+    location: {
+        municipality: string;
+        neighborhood: string;
+        address: string;
+    };
+    categories: Skill[];
+    status: string;
+    expiresAt: string;
+    _id: string;
+    clientId: {
+        email: string;
+        name: string;
+        _id: string;
+        lastName: string;
+    };
+    handymanId: {
+        email: string;
+        name: string;
+        _id: string;
+        lastName: string;
+    };
 }

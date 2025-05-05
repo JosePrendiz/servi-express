@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link'
 import serviExpressLogo from '@/assets/servi-express-logo.png'
@@ -17,10 +17,11 @@ import { FaRegCalendarAlt } from "react-icons/fa";
 import { useAppContext } from 'app/context';
 import { ThirdWebData } from 'app/interfaces';
 import { authAPI, usersAPI, handymenAPI, clientsAPI } from 'app/axios';
+import ChatNotification from '../stream/notification';
 
 export default function Header() {
 
-    const { setThirdWebData, setCurrentUser, currentUser, setChatToken } = useAppContext();
+    const { setThirdWebData, setCurrentUser, currentUser, setChatToken, chatToken } = useAppContext();
     const [isClientModalOpen, setIsClientModalOpen] = useState<boolean>(false);
     const [isHandymanModalOpen, setIsHandymanModalOpen] = useState<boolean>(false);
     const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false);
@@ -50,8 +51,20 @@ export default function Header() {
         }
     }
 
+    const hasProcessed = useRef(false);
+
     useEffect(() => {
+        const currentToken = localStorage.getItem("accessTokenSE");
         const getThirdWebData = async () => {
+            let user;
+            if (currentToken) {
+                try {
+                    user = await usersAPI.getUserProfile()
+                    setCurrentUser(user);
+                } catch (error) {
+                    console.error(error);
+                }
+            }
             try {
                 const userdata = await getProfiles({ client });
                 const details = userdata[0].details as ThirdWebData;
@@ -64,10 +77,14 @@ export default function Header() {
                     givenName: details.givenName,
                 });
                 if (details.email && details.id && activeAccount) {
-                    const streamToken = await authAPI.login(details.email, details.id)
-                    setChatToken(streamToken);
+                    hasProcessed.current = true;
+                    const streamToken = await authAPI.login(details.email, details.id);
                     if (streamToken) {
-                        const user = await usersAPI.getUserProfile()
+                        setChatToken(streamToken);
+                        if (!user) {
+                            user = await usersAPI.getUserProfile()
+                            setCurrentUser(user);
+                        }
                         if (details.picture !== user.profilePicture) {
                             if (user.role === 'handyman') {
                                 handymenAPI.updateHandymanProfile({ profilePicture: details.picture }, user.email);
@@ -75,7 +92,6 @@ export default function Header() {
                                 await clientsAPI.updateClientProfile({ profilePicture: details.picture }, user.email);
                             }
                         }
-                        setCurrentUser(user);
                     } else {
                         openClientModal();
                     }
@@ -84,11 +100,12 @@ export default function Header() {
                 console.error(error);
             }
         }
-        if (true) {
+        if (!hasProcessed.current) {
             getThirdWebData()
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [activeAccount]);
+
     return (
         <header className="flex items-center justify-between px-4 py-2 shadow-md bg-white">
             {/* Logo */}
@@ -130,7 +147,7 @@ export default function Header() {
                 {currentUser &&
                     <div className="relative">
                         <button className="no-bkgd flex items-center" onClick={toggleDropdown}>
-                            Hola, {currentUser.name} {isDropdownOpen ? <RiArrowDropUpLine className="text-4xl" /> : <RiArrowDropDownLine className="text-4xl" />}
+                            Hola, {currentUser.name} {' '} {chatToken && <ChatNotification />}{isDropdownOpen ? <RiArrowDropUpLine className="text-4xl" /> : <RiArrowDropDownLine className="text-4xl" />}
                         </button>
                         {isDropdownOpen && (
                             <div className={`dropdown-menu ${isDropdownOpen ? 'open' : ''}`} onClick={toggleDropdown}>

@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { municipalities } from 'app/locations';
 import { HandymanData } from 'app/interfaces';
 import { serviceAPI } from 'app/axios';
+import ActionDenied from '../denyAction';
 
 export default function StartServiceRequest({
     handyman,
@@ -22,6 +23,8 @@ export default function StartServiceRequest({
         category: '',
     });
 
+    const [denyAction, setDenyAction] = useState(false);
+
     const selectedMunicipality = municipalities.find(
         (item) => item.municipality === formData.municipality
     );
@@ -39,34 +42,41 @@ export default function StartServiceRequest({
     };
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-        if (role === 'handyman') {
-            alert('No puedes solicitar un servicio como un trabajador. Por favor, inicia sesión como cliente.');
-            return;
-        }
         e.preventDefault();
-        const payload = {
-            title: formData.title,
-            handymanEmail: handyman.email,
-            description: formData.description,
-            location: {
-                municipality: formData.municipality,
-                neighborhood: formData.neighborhood,
-                address: formData.address,
-            },
-            categories: [formData.category],
-        };
+        if (role === 'handyman') {
+            setDenyAction(true);
+        } else {
+            const payload = {
+                title: formData.title,
+                handymanEmail: handyman.email,
+                description: formData.description,
+                location: {
+                    municipality: formData.municipality,
+                    neighborhood: formData.neighborhood,
+                    address: formData.address,
+                },
+                categories: [formData.category],
+            };
 
-        try {
-            const response = await serviceAPI.requestService(payload);
-            onServiceResponse(response.requestId);
-        } catch (error) {
-            console.error('Error:', error);
-            alert('Ocurrió un error al solicitar el servicio. Por favor, inténtelo de nuevo más tarde.');
+            try {
+                const response = await serviceAPI.requestService(payload);
+                onServiceResponse(response.requestId);
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Ocurrió un error al solicitar el servicio. Por favor, inténtelo de nuevo más tarde.');
+            }
         }
     };
 
     return (
         <div className="p-6 max-w-2xl mx-auto bg-white shadow-lg rounded-lg my-8 form-input">
+            {denyAction &&
+                <ActionDenied
+                    message='No puedes solicitar un servicio como un trabajador. Por favor, inicia sesión como cliente.'
+                    buttonText='Cerrar'
+                    onButtonClick={() => setDenyAction(false)}
+                />
+            }
             <h2 className="text-xl font-bold mb-4">Solicitar Servicio</h2>
             <form onSubmit={handleSubmit} className="space-y-4">
                 {/* Title */}

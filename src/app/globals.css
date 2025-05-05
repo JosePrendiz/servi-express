@@ -456,17 +456,14 @@ h3 {
   width: 100vw;
   height: 100vh;
   background-color: rgba(0, 0, 0, 0.6);
-  /* Semi-transparent black */
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 1000;
-  /* Ensures it appears above other elements */
 }
 
 .action-denied-popup {
   background-color: #ffffff;
-  /* White background */
   border-radius: 12px;
   padding: 24px;
   max-width: 400px;
@@ -478,16 +475,13 @@ h3 {
 
 .action-denied-popup p {
   color: #1f2937;
-  /* Dark gray text */
 }
 
 .action-denied-button {
   margin-top: 16px;
   padding: 12px 24px;
   background-color: #2563eb;
-  /* Blue background */
   color: #ffffff;
-  /* White text */
   border: none;
   border-radius: 8px;
   font-size: 16px;
@@ -498,13 +492,27 @@ h3 {
 
 .action-denied-button:hover {
   background-color: #1e40af;
-  /* Darker blue on hover */
 }
 
 .action-denied-button:focus {
   outline: none;
   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.5);
-  /* Focus ring */
+}
+
+.service-card {
+  border: 1px solid #e5e7eb;
+  border-radius: 1rem;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+  background-color: #ffffff;
+  width: 100%;
+  max-width: 24rem;
+  transition: box-shadow 0.3s;
+}
+
+.service-card:hover {
+  box-shadow: 0px 8px 10px rgba(0, 0, 0, 0.15);
+  cursor: pointer;
 }
 
 /* Media */
@@ -512,6 +520,9 @@ h3 {
 @media (max-width: 640px) {
   .contact-row {
     flex-direction: column;
+  }
+  .service-card{
+    width: 90%;
   }
 
   .handymen-grid {

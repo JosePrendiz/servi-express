@@ -25,6 +25,8 @@ export const authAPI = {
       const response = await apiClient.post("/auth/login", { email, googleId });
       setAuthHeader(response.data.accessToken);
       setCookie("accessToken", "true", { path: "/" });
+      localStorage.setItem("accessTokenSE", response.data.accessToken);
+      localStorage.setItem("refreshTokenSE", response.data.refresh_token);
       return response.data.chatToken;
     } catch (error) {
       if (axios.isAxiosError(error) && error.response?.status === 404) {
@@ -32,6 +34,16 @@ export const authAPI = {
       }
     }
   },
+  refreshToken: async () => {
+    try {
+      const refreshToken = localStorage.getItem("refreshTokenSE");
+      const response = await apiClient.post("/auth/refresh-token", { refreshToken });
+      setAuthHeader(response.data.access_token);
+      localStorage.setItem("accessTokenSE", response.data.accessToken);
+    } catch (error) {
+      throw error;
+    }
+  }
 };
 
 export const usersAPI = {
@@ -46,6 +58,10 @@ export const usersAPI = {
 
   getUserProfile: async () => {
     try {
+      const token = localStorage.getItem("accessTokenSE");
+      if (token) {
+        setAuthHeader(token);
+      }
       const response = await apiClient.get(`/users/profile`);
       return response.data.data;
     } catch (error) {
@@ -95,6 +111,15 @@ export const serviceAPI = {
     }
   },
 
+  getClientRequests: async () => {
+    try {
+      const response = await apiClient.get(`/requests/client/my-requests`);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
   getCurrentService: async (handymanId: string) => {
     try {
       const response = await apiClient.get(`/requests/client/request-handyman/${handymanId}`);
@@ -102,7 +127,53 @@ export const serviceAPI = {
     } catch (error) {
       throw error;
     }
-  }
+  },
+
+  clientCancelRequest: async (requestID: string) => {
+    try {
+      const response = await apiClient.patch(`/requests/client/cancel-request/${requestID}`);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  getHandymanRequests: async () => {
+    try {
+      const response = await apiClient.get(`/requests/handyman/my-requests`);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  handymanAcceptRequests: async (requestID: string) => {
+    try {
+      const response = await apiClient.patch(`/requests/handyman/accept-request/${requestID}`);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  handymanRejectRequests: async (requestID: string) => {
+    try {
+      const response = await apiClient.patch(`/requests/handyman/reject-request/${requestID}`);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  getRequestByID: async (requestID: string) => {
+    try {
+      const response = await apiClient.get(`/requests/${requestID}`);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
 };
 
 export const handymenAPI = {

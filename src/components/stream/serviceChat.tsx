@@ -6,6 +6,7 @@ import './chatStyles.css';
 import serviExpressLogo from '@/assets/servi-express-logo-mini.png';
 import Image from 'next/image';
 
+const client = new StreamChat("xevpw6wvqw5s");
 interface Message {
     id: string;
     text: string;
@@ -27,7 +28,6 @@ export default function CustomStreamChat({ channelId }: { channelId: string }) {
     const messageListRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
-        const client = new StreamChat("xevpw6wvqw5s");
 
         const initChat = async () => {
             try {
@@ -51,12 +51,9 @@ export default function CustomStreamChat({ channelId }: { channelId: string }) {
                 setLoading(false);
             }
         };
-
-        initChat();
-
-        return () => {
-            client.disconnectUser();
-        };
+        if (chatToken) {
+            initChat();
+        }
     }, [channelId, currentUser, chatToken]);
 
     useEffect(() => {
