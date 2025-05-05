@@ -45,10 +45,12 @@ export default function Header() {
     ];
 
     const logout = () => {
+        localStorage.removeItem('accessTokenSE');
+        localStorage.removeItem('refreshTokenSE');
         if (thirdWebWallet) {
             disconnect(thirdWebWallet);
-            window.location.reload();
         }
+        window.location.reload();
     }
 
     const hasProcessed = useRef(false);
@@ -97,7 +99,12 @@ export default function Header() {
                     }
                 }
             } catch (error) {
+                const authToken = localStorage.getItem('accessTokenSE')
                 console.error(error);
+                if (error instanceof Error && error.message === 'Error verifying JWT' && authToken) {
+                    logout()
+                }
+
             }
         }
         if (!hasProcessed.current) {

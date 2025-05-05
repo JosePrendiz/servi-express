@@ -43,7 +43,7 @@ export default function StartServiceRequest({
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        if (role === 'handyman') {
+        if (role === 'handyman' || role === undefined) {
             setDenyAction(true);
         } else {
             const payload = {
@@ -72,7 +72,7 @@ export default function StartServiceRequest({
         <div className="p-6 max-w-2xl mx-auto bg-white shadow-lg rounded-lg my-8 form-input">
             {denyAction &&
                 <ActionDenied
-                    message='No puedes solicitar un servicio como un trabajador. Por favor, inicia sesión como cliente.'
+                    message='Necesitas Iniciar Sesión como Cliente para solicitar un Servicio de este Handyman'
                     buttonText='Cerrar'
                     onButtonClick={() => setDenyAction(false)}
                 />

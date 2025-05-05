@@ -181,3 +181,7 @@ export interface UserChatActions {
         className: string;
     }[];
 }
+export interface PayPalPaymentProps {
+    amount: string;
+    quotationId: string;
+}

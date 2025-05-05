@@ -8,6 +8,7 @@ import Image from 'next/image';
 import './chatStyles.css';
 import { quotationAPI, serviceAPI } from 'app/axios';
 import UserActions from './userActions';
+import PayPalPayment from '../paypal/payment';
 
 const client = new StreamChat("xevpw6wvqw5s");
 
@@ -158,6 +159,9 @@ export default function CustomStreamChat({ channelId }: { channelId: string }) {
                         { label: "Rechazar", onClick: handleCancelQuote, className: "cancel-btn" },
                     ]}
                 />
+            )}
+            {currentUser?.role === 'client' && channel?.data?.requestStatus === 'invoiced' && (
+                <PayPalPayment amount={channel.data.quotationValue as string} quotationId={channel.data.quotationId as string} />
             )}
             {currentUser?.role === 'handyman' && channel?.data?.requestStatus === 'accepted' && (
                 <div className="quotation-section">
