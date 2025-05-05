@@ -162,3 +162,13 @@ export interface ServiceRequest {
         lastName: string;
     };
 }
+export interface Message {
+    id: string;
+    text: string;
+    user: {
+        id: string;
+        name: string;
+        image: string;
+    };
+    created_at: string;
+}

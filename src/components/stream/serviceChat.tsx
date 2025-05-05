@@ -1,22 +1,13 @@
+import serviExpressLogo from '@/assets/servi-express-logo-mini.png';
 import React, { useEffect, useState, useRef } from 'react';
 import { StreamChat, Channel } from 'stream-chat';
 import { useAppContext } from 'app/context';
+import { Message } from 'app/interfaces';
 import Loading from '../loader';
-import './chatStyles.css';
-import serviExpressLogo from '@/assets/servi-express-logo-mini.png';
 import Image from 'next/image';
+import './chatStyles.css';
 
 const client = new StreamChat("xevpw6wvqw5s");
-interface Message {
-    id: string;
-    text: string;
-    user: {
-        id: string;
-        name: string;
-        image: string;
-    };
-    created_at: string;
-}
 
 export default function CustomStreamChat({ channelId }: { channelId: string }) {
     const { currentUser, chatToken } = useAppContext();
@@ -64,9 +55,7 @@ export default function CustomStreamChat({ channelId }: { channelId: string }) {
 
     const handleSendMessage = async () => {
         if (!newMessage.trim()) return;
-
         try {
-            // Send message to the channel
             await channel?.sendMessage({
                 text: newMessage,
             });
@@ -80,7 +69,7 @@ export default function CustomStreamChat({ channelId }: { channelId: string }) {
 
     return (
         <div className="custom-chat-container">
-            <div className="message-list">
+            <div className="message-list" ref={messageListRef}>
                 {messages.map((msg) => {
                     const isSystemMessage = !msg.user.name;
                     const isMyMessage = msg.user.id === currentUser?._id;
