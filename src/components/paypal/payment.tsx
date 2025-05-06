@@ -38,9 +38,8 @@ const PayPalPayment: React.FC<PayPalPaymentProps> = ({ amount, quotationId }) =>
                                 return Promise.reject(new Error('Order actions are undefined.'));
                             }
 
-                            return actions.order.capture().then((details) => {
-                                alert('Pago completado por: ' + details?.payer?.name?.given_name);
-                                console.log('Detalles del Pago:', details);
+                            return actions.order.capture().then((details) => {                                
+                                console.info('Detalles del Pago:', details);
                             });
                         },
                         onError: (err: Record<string, unknown>) => {

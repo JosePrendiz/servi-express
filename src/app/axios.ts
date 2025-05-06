@@ -49,7 +49,10 @@ export const authAPI = {
 export const usersAPI = {
   getAnyUser: async (identifier: string) => {
     try {
-      const response = await apiClient.get(`/users/get-any-user/${identifier}`);
+      const authToken = localStorage.getItem('accessTokenSE');
+      const response = await apiClient.get(`/users/get-any-user/${identifier}`, {
+        headers: authToken ? { "x-jwt-token": authToken } : undefined,
+      });
       return response.data.data;
     } catch (error) {
       throw error;
@@ -120,14 +123,14 @@ export const serviceAPI = {
     }
   },
 
-  getCurrentService: async (handymanId: string) => {
-    try {
-      const response = await apiClient.get(`/requests/client/request-handyman/${handymanId}`);
-      return response.data.requestId;
-    } catch (error) {
-      throw error;
-    }
-  },
+  // getCurrentService: async (handymanId: string) => {
+  //   try {
+  //     const response = await apiClient.get(`/requests/client/request-handyman/${handymanId}`);
+  //     return response.data.requestId;
+  //   } catch (error) {
+  //     throw error;
+  //   }
+  // },
 
   clientCancelRequest: async (requestID: string) => {
     try {

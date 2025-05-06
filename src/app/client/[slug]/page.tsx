@@ -2,7 +2,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
-import { serviceAPI, usersAPI } from 'app/axios';
+import { usersAPI } from 'app/axios';
 import { useAppContext } from 'app/context';
 import { FaWhatsapp, FaEnvelope, FaMapMarkerAlt } from 'react-icons/fa';
 import Image from 'next/image';
@@ -22,26 +22,14 @@ export default function ClientProfile() {
         try {
             const response = await usersAPI.getAnyUser(slug as string);
             setClient(response);
+            setCurrentService(response.requestId)
         } catch (err) {
             console.error(err);
         }
     };
 
-    const getCurrentService = async () => {
-        try {
-            const serviceId = await serviceAPI.getCurrentService(slug as string);
-            if (serviceId) {
-                setCurrentService(serviceId);
-            }
-        } catch (err) {
-            console.error(err);
-        }
-    }
-
     useEffect(() => {
-        if (currentUser?.role === 'handyman') {
-            getCurrentService();
-        } else if (currentUser?.role === 'client') {
+        if (currentUser?.role === 'client') {
             window.location.href = '/'
         }
     }, [currentUser]);

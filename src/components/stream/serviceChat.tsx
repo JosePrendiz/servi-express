@@ -76,6 +76,14 @@ export default function CustomStreamChat({ channelId }: { channelId: string }) {
         }
     };
 
+    const handleCompleteService = async () => {
+        try {
+            console.log('Service has been completed');
+        } catch (error) {
+            console.error("Error creating quotation:", error);
+        }
+    };
+
     useEffect(() => {
         const initChat = async () => {
             try {
@@ -175,6 +183,16 @@ export default function CustomStreamChat({ channelId }: { channelId: string }) {
                         />
                         <button onClick={handleCreateQuotation} disabled={!quotationAmount.trim()}>
                             Enviar Cotización
+                        </button>
+                    </div>
+                </div>
+            )}
+            {channel?.data?.requestStatus === 'payed' && (
+                <div className="quotation-section">
+                    <h2>Marcar Como Terminado</h2>
+                    <div className="quotation-input-group">
+                        <button style={{ margin: '0 auto' }} onClick={handleCompleteService}>
+                            Servicio Completado
                         </button>
                     </div>
                 </div>

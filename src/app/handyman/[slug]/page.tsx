@@ -2,7 +2,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
-import { serviceAPI, usersAPI } from 'app/axios';
+import { usersAPI } from 'app/axios';
 import { useAppContext } from 'app/context';
 import { FaStar, FaWhatsapp, FaEnvelope, FaMapMarkerAlt } from 'react-icons/fa';
 import Image from 'next/image';
@@ -23,30 +23,18 @@ export default function HandymanProfile() {
         try {
             const response = await usersAPI.getAnyUser(slug as string);
             setHandyman(response);
+            setCurrentService(response.requestId)
         } catch (err) {
             console.error(err);
         }
     };
-
-    const getCurrentService = async () => {
-        try {
-            const serviceId = await serviceAPI.getCurrentService(slug as string);
-            if (serviceId) {
-                setCurrentService(serviceId);
-            }
-        } catch (err) {
-            console.error(err);
-        }
-    }
 
     const handleServiceResponse = (response: string) => {
         setCurrentService(response);
     };
 
     useEffect(() => {
-        if (currentUser?.role === 'client') {
-            getCurrentService();
-        } else if (currentUser?.role === 'handyman') {
+       if (currentUser?.role === 'handyman') {
             window.location.href = '/'
         }
     }, [currentUser]);
