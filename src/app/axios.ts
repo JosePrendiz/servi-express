@@ -71,6 +71,15 @@ export const usersAPI = {
       throw error;
     }
   },
+
+  searchHandymen: async (query: string) => {
+    try {
+      const response = await apiClient.get(`/users/search-handyman?q=${query}`);
+      return response.data.data;
+    } catch (error) {
+      throw error;
+    }
+  },
 };
 
 export const skillsAPI = {
@@ -231,7 +240,7 @@ export const handymenAPI = {
   getAllHandymen: async (params: PageParams) => {
     try {
       const response = await apiClient.get(`/handymen/get-all`, { params });
-      return response.data.data.docs;
+      return response.data.data;
     } catch (error) {
       throw error;
     }

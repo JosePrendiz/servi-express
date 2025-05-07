@@ -1,13 +1,18 @@
 "use client"
-import React, { useState } from 'react';
+import { SearchBarProps } from 'app/interfaces';
 import { FaSearch } from 'react-icons/fa';
+import React, { useState } from 'react';
+import { usersAPI } from 'app/axios';
 
-export default function SearchBar() {
+export default function SearchBar({ onSearch }: SearchBarProps) {
   const [query, setQuery] = useState('');
 
-  const handleSearch = () => {
+  const handleSearch = async () => {
     if (query) {
-      console.info('Searching for:', query);
+      const data = await usersAPI.searchHandymen(query)
+      onSearch(data)
+    } else {
+      onSearch([])
     }
   };
 
@@ -21,6 +26,11 @@ export default function SearchBar() {
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Buscar servicios (ejemplo: fontanero, carpintero)"
           className="search-input"
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              handleSearch();
+            }
+          }}
         />
         {/* Search Button */}
         <button

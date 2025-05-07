@@ -186,3 +186,6 @@ export interface PayPalPaymentProps {
     amount: string;
     quotationId: string;
 }
+export interface SearchBarProps {
+    onSearch: (data: HandymanData[]) => void;
+}
