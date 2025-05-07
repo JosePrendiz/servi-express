@@ -52,7 +52,10 @@ const ActiveServices = ({ channel }: { channel: ServiceRequest }) => {
     return (
         <div
             key={channel._id}
-            className="service-card"
+            className={`service-card ${['rejected', 'completed', 'expired', 'cancelled'].includes(channel.status)
+                    ? 'inactive-service'
+                    : 'active-service'
+                }`}
             onClick={markAsRead}
         >
             {newMessage && (

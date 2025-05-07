@@ -9,16 +9,26 @@ export default function Chats() {
 
     const { currentUser } = useAppContext();
 
-    const [channels, setChannels] = useState([]);
+    const [activeChannels, setActiveChannels] = useState<ServiceRequest[]>([]);
+    const [inactiveChannels, setInactiveChannels] = useState<ServiceRequest[]>([]);
 
     const fetchAndTrackChannels = async () => {
         if (currentUser?.role === 'handyman') {
             const channels = await serviceAPI.getHandymanRequests();
-            setChannels(channels);
+            categorizeChannels(channels);
         } else if (currentUser?.role === 'client') {
             const channels = await serviceAPI.getClientRequests();
-            setChannels(channels);
+            categorizeChannels(channels);
         }
+    };
+
+    const categorizeChannels = (channels: ServiceRequest[]) => {
+        const inactiveStatuses = ['rejected', 'completed', 'expired', 'cancelled'];
+        const active = channels.filter(channel => !inactiveStatuses.includes(channel.status));
+        const inactive = channels.filter(channel => inactiveStatuses.includes(channel.status));
+
+        setActiveChannels(active);
+        setInactiveChannels(inactive);
     };
 
     useEffect(() => {
@@ -28,14 +38,34 @@ export default function Chats() {
 
     return (
         <div>
+            {/* Active Services Section */}
             <div className="services-container">
                 <h2 className="text-center">Servicios Activos</h2>
-                <div className="handymen-grid">
-                    {channels.map((channel: ServiceRequest) => (
-                        <ActiveServices key={channel._id} channel={channel} />
-                    ))}
+                {activeChannels.length > 0 ?
+                    <div className="handymen-grid">
+                        {activeChannels.map((channel: ServiceRequest) => (
+                            <ActiveServices key={channel._id} channel={channel} />
+                        ))}
+                    </div>
+                    :
+                    <div className="no-service-message" style={{ height: 150 }}>
+                        <p>No hay un servicio activo actualmente.</p>
+                    </div>
+                }
+            </div>
+
+            {/* Inactive Services Section */}
+            {
+                inactiveChannels.length > 0 &&
+                <div className="services-container">
+                    <h2 className="text-center">Servicios Inactivos</h2>
+                    <div className="handymen-grid">
+                        {inactiveChannels.map((channel: ServiceRequest) => (
+                            <ActiveServices key={channel._id} channel={channel} />
+                        ))}
+                    </div>
                 </div>
-            </div >
+            }
         </div >
     );
 }
