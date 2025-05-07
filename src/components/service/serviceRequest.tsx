@@ -181,7 +181,6 @@ export default function StartServiceRequest({
                     <button
                         type="submit"
                         className="semiround-green-button"
-                        style={{ margin: '0 auto', display: 'block' }}
                     >
                         Solicitar
                     </button>

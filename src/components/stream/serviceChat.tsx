@@ -6,7 +6,7 @@ import { Message } from 'app/interfaces';
 import Loading from '../loader';
 import Image from 'next/image';
 import './chatStyles.css';
-import { quotationAPI, serviceAPI } from 'app/axios';
+import { quotationAPI } from 'app/axios';
 import UserActions from './userActions';
 import PayPalPayment from '../paypal/payment';
 
@@ -34,38 +34,6 @@ export default function CustomStreamChat({ channelId }: { channelId: string }) {
         }
     };
 
-    const handleAcceptRequest = async () => {
-        try {
-            await serviceAPI.handymanAcceptRequests((channel?.data?.id as string).split('-')[1])
-        } catch (error) {
-            console.error("Error accepting request:", error);
-        }
-    };
-
-    const handleCancelRequest = async () => {
-        try {
-            await serviceAPI.handymanRejectRequests((channel?.data?.id as string).split('-')[1])
-        } catch (error) {
-            console.error("Error canceling request:", error);
-        }
-    };
-
-    const handleAcceptQuote = async () => {
-        try {
-            await quotationAPI.clientAcceptQuote(channel?.data?.quotationId as string)
-        } catch (error) {
-            console.error("Error accepting request:", error);
-        }
-    };
-
-    const handleCancelQuote = async () => {
-        try {
-            await quotationAPI.clientRejectQuote(channel?.data?.quotationId as string)
-        } catch (error) {
-            console.error("Error canceling request:", error);
-        }
-    };
-
     const handleCreateQuotation = async () => {
         if (!quotationAmount.trim()) return;
         try {
@@ -84,8 +52,11 @@ export default function CustomStreamChat({ channelId }: { channelId: string }) {
         }
     };
 
+    const hasChannel = useRef(false);
+
     useEffect(() => {
         const initChat = async () => {
+            hasChannel.current = true;
             try {
                 await client.connectUser(
                     { id: currentUser?._id as string, name: currentUser?.name },
@@ -106,10 +77,11 @@ export default function CustomStreamChat({ channelId }: { channelId: string }) {
                 setLoading(false);
             }
         };
-        if (chatToken) {
+        if (chatToken && !hasChannel.current) {
             initChat();
         }
-    }, [channelId, currentUser, chatToken]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [chatToken]);
 
     useEffect(() => {
         if (messageListRef.current) {
@@ -121,53 +93,12 @@ export default function CustomStreamChat({ channelId }: { channelId: string }) {
 
     return (
         <div className="custom-chat-container">
-            {currentUser?.role === 'handyman' && channel?.data?.requestStatus === 'pending' && (
-                <UserActions
-                    title="¿Aceptar esta solicitud?"
-                    description="Por favor confirma si deseas aceptar o rechazar esta solicitud antes de continuar."
-                    buttons={[
-                        { label: "Aceptar", onClick: handleAcceptRequest, className: "accept-btn" },
-                        { label: "Rechazar", onClick: handleCancelRequest, className: "cancel-btn" },
-                    ]}
-                />
-            )}
-            {currentUser?.role === 'client' && channel?.data?.requestStatus === 'rejected' && (
-                <UserActions
-                    title="Solicitud Rechazada"
-                    description="Su solicitud fue rechazada por el handyman."
-                    buttons={[
-                        { label: "Aceptar", onClick: () => { window.location.reload(); }, className: "accept-btn" },
-                    ]}
-                />
-            )}
-            {currentUser?.role === 'handyman' && channel?.data?.requestStatus === 'rejected' && (
-                <UserActions
-                    title="Solicitud Rechazada"
-                    description="Rechazaste la solicitud de este cliente."
-                    buttons={[
-                        { label: "Aceptar", onClick: () => { window.location.reload(); }, className: "accept-btn" },
-                    ]}
-                />
-            )}
-            {currentUser?.role === 'handyman' && channel?.data?.requestStatus === 'quoted' && (
-                <UserActions
-                    title="Cotización Enviada"
-                    description="Esperando confirmación del cliente."
-                    buttons={[
-
-                    ]}
-                />
-            )}
-            {currentUser?.role === 'client' && channel?.data?.requestStatus === 'quoted' && (
-                <UserActions
-                    title="Cotización Recibida"
-                    description={`Costo sugerido por el Handyman: $${channel.data.quotationValue}`}
-                    buttons={[
-                        { label: "Aceptar", onClick: handleAcceptQuote, className: "accept-btn" },
-                        { label: "Rechazar", onClick: handleCancelQuote, className: "cancel-btn" },
-                    ]}
-                />
-            )}
+            <UserActions
+                requestStatus={channel?.data?.requestStatus as string}
+                role={currentUser?.role as string}
+                channelId={channel?.data?.id as string}
+                quotationId={channel?.data?.quotationId as string}
+            />
             {currentUser?.role === 'client' && channel?.data?.requestStatus === 'invoiced' && (
                 <PayPalPayment amount={channel.data.quotationValue as string} quotationId={channel.data.quotationId as string} />
             )}

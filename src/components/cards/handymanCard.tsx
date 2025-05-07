@@ -16,7 +16,7 @@ export default function HandymanCard({ handymanData }: HandymanCardProps) {
     return (
         <Link
             href={`/handyman/${slug}`}
-            className="flex flex-col items-center p-4 rounded-lg shadow-md "
+            className="handymanCard"
             style={{
                 width: '300px',
                 height: '350px',

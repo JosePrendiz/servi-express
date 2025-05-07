@@ -69,7 +69,7 @@ export default function ClientProfile() {
                 {/* Coverage Area */}
                 <div className="mt-4">
                     <h3 className="text-lg font-semibold">Ubicación</h3>
-                    <p className="flex items-center text-gray-700 mt-2">
+                    <p className="centered-text">
                         <FaMapMarkerAlt className="mr-2" /> {client.municipality}, {client.neighborhood}, {client.address}
                     </p>
                 </div>
@@ -78,10 +78,7 @@ export default function ClientProfile() {
                     <h3 className="text-lg font-semibold">Trabajadores Buscados</h3>
                     <div className="flex flex-wrap gap-2 mt-2 justify-around">
                         {client.preferences.map((skill: { skillName: string }, index: number) => (
-                            <span
-                                key={index}
-                                className="px-3 py-1 bg-blue-100 text-blue-600 rounded-full text-sm"
-                            >
+                            <span key={index} className="green-label">
                                 {skill.skillName}
                             </span>
                         ))}

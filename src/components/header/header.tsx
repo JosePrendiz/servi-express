@@ -9,7 +9,6 @@ import { inAppWallet } from "thirdweb/wallets";
 import { client } from '../../app/client';
 import RegisterClientPopup from '../auth/registerClient';
 import RegisterHandymanPopup from '../auth/registerHandyman';
-import { IoChatbubbleEllipsesOutline } from "react-icons/io5";
 import { RiArrowDropDownLine, RiArrowDropUpLine } from "react-icons/ri";
 import { HiOutlineLogout } from "react-icons/hi";
 import { CgProfile } from "react-icons/cg";
@@ -161,12 +160,9 @@ export default function Header() {
                                 <Link href="/perfil" className='dropdown-item'>
                                     <CgProfile className="green-icons" />Mi Perfil
                                 </Link>
-                                <Link href="/reservas" className='dropdown-item'>
-                                    <FaRegCalendarAlt className="green-icons" />Mis Reservas
-                                </Link>
-                                <Link href="/chats" className='dropdown-item'>
-                                    <IoChatbubbleEllipsesOutline className="green-icons" />Chats
-                                </Link>
+                                <Link href="/servicios" className='dropdown-item'>
+                                    <FaRegCalendarAlt className="green-icons" />Mis Servicios
+                                </Link>                                
                                 <button className="dropdown-item" onClick={logout}>
                                     <HiOutlineLogout className="green-icons" />Cerrar Sesión
                                 </button>

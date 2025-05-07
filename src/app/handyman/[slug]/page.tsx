@@ -34,12 +34,6 @@ export default function HandymanProfile() {
     };
 
     useEffect(() => {
-       if (currentUser?.role === 'handyman') {
-            window.location.href = '/'
-        }
-    }, [currentUser]);
-
-    useEffect(() => {
         getHandyman();
     }, []);
 
@@ -84,7 +78,7 @@ export default function HandymanProfile() {
                 {/* Coverage Area */}
                 <div className="mt-4">
                     <h3 className="text-lg font-semibold">Área de Cobertura</h3>
-                    <p className="flex items-center text-gray-700 mt-2">
+                    <p className="centered-text">
                         <FaMapMarkerAlt className="mr-2" /> {handyman.coverageArea.join(', ')}
                     </p>
                 </div>
@@ -93,10 +87,7 @@ export default function HandymanProfile() {
                     <h3 className="text-lg font-semibold">Habilidades</h3>
                     <div className="flex flex-wrap gap-2 mt-2 justify-around">
                         {handyman.skills.map((skill: { skillName: string }, index: number) => (
-                            <span
-                                key={index}
-                                className="px-3 py-1 bg-blue-100 text-blue-600 rounded-full text-sm"
-                            >
+                            <span key={index} className="green-label">
                                 {skill.skillName}
                             </span>
                         ))}
