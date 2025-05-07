@@ -1,6 +1,8 @@
-import React, { useEffect } from 'react';
 import { loadScript, PayPalNamespace, PayPalScriptQueryParameters } from '@paypal/paypal-js';
 import { PayPalPaymentProps } from 'app/interfaces';
+// import 'react-toastify/dist/ReactToastify.css';
+import React, { useEffect } from 'react';
+import { toast } from 'react-toastify';
 
 const PayPalPayment: React.FC<PayPalPaymentProps> = ({ amount, quotationId }) => {
     useEffect(() => {
@@ -38,12 +40,13 @@ const PayPalPayment: React.FC<PayPalPaymentProps> = ({ amount, quotationId }) =>
                                 return Promise.reject(new Error('Order actions are undefined.'));
                             }
 
-                            return actions.order.capture().then((details) => {                                
-                                console.info('Detalles del Pago:', details);
+                            return actions.order.capture().then(() => {
+                                toast.success('El pago fue enviado con éxito! Cargando Datos');
                             });
                         },
                         onError: (err: Record<string, unknown>) => {
-                            console.error('Error en el Pago:', err);
+                            console.error(err)
+                            toast.error('Error en el Pago. Por favor intente de nuevo.', { autoClose: 3000 });
                         },
                     }).render('#paypal-button-container');
                 } else {

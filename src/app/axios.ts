@@ -94,9 +94,9 @@ export const skillsAPI = {
 };
 
 export const ratingAPI = {
-  rateHandyman: async (handymanEmail: string, rating: number) => {
+  rateHandyman: async (identifier: string, rating: number) => {
     try {
-      const response = await apiClient.post(`/rating`, { handymanEmail, rating });
+      const response = await apiClient.post(`/rating`, { identifier, rating });
       return response.data;
     } catch (error) {
       throw error;
@@ -122,15 +122,6 @@ export const serviceAPI = {
       throw error;
     }
   },
-
-  // getCurrentService: async (handymanId: string) => {
-  //   try {
-  //     const response = await apiClient.get(`/requests/client/request-handyman/${handymanId}`);
-  //     return response.data.requestId;
-  //   } catch (error) {
-  //     throw error;
-  //   }
-  // },
 
   clientCancelRequest: async (requestID: string) => {
     try {
@@ -176,6 +167,15 @@ export const serviceAPI = {
       throw error;
     }
   },
+
+  completeRequest: async (requestID: string) => {
+    try {
+      const response = await apiClient.patch(`/requests/complete-request/${requestID}`);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
 
 };
 

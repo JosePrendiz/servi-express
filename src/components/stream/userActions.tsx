@@ -1,12 +1,13 @@
 import { quotationAPI, serviceAPI } from 'app/axios';
 import { UserChatActions } from 'app/interfaces';
+import './chatStyles.css';
 import React from 'react';
 
-const UserActions: React.FC<UserChatActions> = ({ requestStatus, role, channelId, quotationId }) => {
+const UserActions: React.FC<UserChatActions> = ({ role, channel }) => {
 
     const handleAcceptRequest = async () => {
         try {
-            await serviceAPI.handymanAcceptRequests(channelId.split('-')[1])
+            await serviceAPI.handymanAcceptRequests(channel.data.id.split('-')[1])
         } catch (error) {
             console.error("Error accepting request:", error);
         }
@@ -14,7 +15,7 @@ const UserActions: React.FC<UserChatActions> = ({ requestStatus, role, channelId
 
     const handleRejectRequest = async () => {
         try {
-            await serviceAPI.handymanRejectRequests(channelId.split('-')[1])
+            await serviceAPI.handymanRejectRequests(channel.data.id.split('-')[1])
         } catch (error) {
             console.error("Error canceling request:", error);
         }
@@ -22,7 +23,7 @@ const UserActions: React.FC<UserChatActions> = ({ requestStatus, role, channelId
 
     const handleAcceptQuote = async () => {
         try {
-            await quotationAPI.clientAcceptQuote(quotationId as string)
+            await quotationAPI.clientAcceptQuote(channel.data.quotationId)
         } catch (error) {
             console.error("Error accepting request:", error);
         }
@@ -30,7 +31,7 @@ const UserActions: React.FC<UserChatActions> = ({ requestStatus, role, channelId
 
     const handleRejectQuote = async () => {
         try {
-            await quotationAPI.clientRejectQuote(quotationId as string)
+            await quotationAPI.clientRejectQuote(channel.data.quotationId)
         } catch (error) {
             console.error("Error canceling request:", error);
         }
@@ -38,7 +39,7 @@ const UserActions: React.FC<UserChatActions> = ({ requestStatus, role, channelId
 
     const getActionData = () => {
         if (role === 'handyman') {
-            switch (requestStatus) {
+            switch (channel.data.requestStatus) {
                 case 'pending':
                     return {
                         title: '¿Aceptar esta solicitud?',
@@ -62,11 +63,19 @@ const UserActions: React.FC<UserChatActions> = ({ requestStatus, role, channelId
                         description: 'Esperando confirmación del cliente.',
                         buttons: [],
                     };
+                case 'completed':
+                    return {
+                        title: 'Servicio Terminado',
+                        description: 'Pronto Recibirá su pago, la notificación le llegará a su correo',
+                        buttons: [
+                            { label: 'Aceptar', onClick: () => { window.location.href = `/` }, className: 'accept-btn' },
+                        ],
+                    };
                 default:
                     return { title: '', description: '', buttons: [] };
             }
         } else if (role === 'client') {
-            switch (requestStatus) {
+            switch (channel.data.requestStatus) {
                 case 'rejected':
                     return {
                         title: 'Solicitud Rechazada',

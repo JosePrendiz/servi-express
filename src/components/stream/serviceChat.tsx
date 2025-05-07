@@ -1,14 +1,15 @@
 import serviExpressLogo from '@/assets/servi-express-logo-mini.png';
+import { quotationAPI, serviceAPI, ratingAPI } from 'app/axios';
 import React, { useEffect, useState, useRef } from 'react';
 import { StreamChat, Channel } from 'stream-chat';
+import PayPalPayment from '../paypal/payment';
 import { useAppContext } from 'app/context';
 import { Message } from 'app/interfaces';
+import UserActions from './userActions';
 import Loading from '../loader';
 import Image from 'next/image';
 import './chatStyles.css';
-import { quotationAPI } from 'app/axios';
-import UserActions from './userActions';
-import PayPalPayment from '../paypal/payment';
+import Link from 'next/link';
 
 const client = new StreamChat("xevpw6wvqw5s");
 
@@ -18,6 +19,8 @@ export default function CustomStreamChat({ channelId }: { channelId: string }) {
     const [newMessage, setNewMessage] = useState<string>('');
     const [channel, setChannel] = useState<Channel | null>(null);
     const [loading, setLoading] = useState(true);
+    const [rating, setRating] = useState(0);
+    const [enableRating, setEnableRating] = useState(true);
     const [quotationAmount, setQuotationAmount] = useState<string>('');
 
     const messageListRef = useRef<HTMLDivElement>(null);
@@ -44,9 +47,15 @@ export default function CustomStreamChat({ channelId }: { channelId: string }) {
         }
     };
 
+    const setHandymanRating = async (star: number) => {
+        setRating(star);
+        setEnableRating(false);
+        await ratingAPI.rateHandyman(channel?.data?.handymanId as string, star);
+    }
+
     const handleCompleteService = async () => {
         try {
-            console.log('Service has been completed');
+            await serviceAPI.completeRequest((channel?.data?.id as string).split('-')[1])
         } catch (error) {
             console.error("Error creating quotation:", error);
         }
@@ -69,7 +78,7 @@ export default function CustomStreamChat({ channelId }: { channelId: string }) {
 
                 channel.on("message.new", (event) => {
                     setMessages((prevMessages) => [...prevMessages, event.message] as unknown as Message[]);
-                    console.log(channel);
+                    // console.log(channel);
                 });
             } catch (error) {
                 console.error("Error initializing chat:", error);
@@ -94,10 +103,8 @@ export default function CustomStreamChat({ channelId }: { channelId: string }) {
     return (
         <div className="custom-chat-container">
             <UserActions
-                requestStatus={channel?.data?.requestStatus as string}
                 role={currentUser?.role as string}
-                channelId={channel?.data?.id as string}
-                quotationId={channel?.data?.quotationId as string}
+                channel={channel as never}
             />
             {currentUser?.role === 'client' && channel?.data?.requestStatus === 'invoiced' && (
                 <PayPalPayment amount={channel.data.quotationValue as string} quotationId={channel.data.quotationId as string} />
@@ -112,17 +119,42 @@ export default function CustomStreamChat({ channelId }: { channelId: string }) {
                             onChange={(e) => setQuotationAmount(e.target.value)}
                             placeholder="Monto en USD"
                         />
-                        <button onClick={handleCreateQuotation} disabled={!quotationAmount.trim()}>
+                        <button className='accept-btn' onClick={handleCreateQuotation} disabled={!quotationAmount.trim()}>
                             Enviar Cotización
                         </button>
                     </div>
                 </div>
             )}
-            {channel?.data?.requestStatus === 'payed' && (
+            {currentUser?.role === 'client' && channel?.data?.requestStatus === 'completed' && (
+                <div className="quotation-section">
+                    <h2 style={{ marginBottom: "0px" }}>Puntuar Servicio</h2>
+                    <div className="stars-rating flex items-center">
+                        {[1, 2, 3, 4, 5].map((star) => (
+                            <button
+                                disabled={!enableRating}
+                                key={star}
+                                onClick={() => setHandymanRating(star)}
+                                className={`w-8 h-8 ${rating >= star ? 'text-yellow-400' : 'text-gray-300'} hover:text-yellow-400`}
+                            >
+                                ★
+                            </button>
+                        ))}
+                    </div>
+                    <p className="mt-2 text-sm text-gray-600" style={{ marginBottom: "10px" }}>
+                        {rating > 0 ? `Gracias por calificar: ${rating} estrella(s)` : 'Selecciona una puntuación.'}
+                    </p>
+                    {!enableRating &&
+                        <Link href={'/'} className='accept-btn'>
+                            Cerrar
+                        </Link>
+                    }
+                </div>
+            )}
+            {channel?.data?.requestStatus === 'payed' && ((currentUser?.role === 'handyman' && !channel?.data?.isHandymanCompleted) || (currentUser?.role === 'client' && !channel?.data?.isClientCompleted)) && (
                 <div className="quotation-section">
                     <h2>Marcar Como Terminado</h2>
                     <div className="quotation-input-group">
-                        <button style={{ margin: '0 auto' }} onClick={handleCompleteService}>
+                        <button className='accept-btn' style={{ margin: '0 auto' }} onClick={handleCompleteService}>
                             Servicio Completado
                         </button>
                     </div>

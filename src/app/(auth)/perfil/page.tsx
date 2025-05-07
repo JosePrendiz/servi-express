@@ -122,7 +122,13 @@ export default function Profile() {
     useEffect(() => {
         if (currentUser) {
             setIsClient(currentUser.role === 'client');
-            setShownSkills(currentUser?.preferences?.map((pref) => pref.skillName) || currentUser?.skills?.map((skill) => skill.skillName) || []);
+            if (currentUser?.role === "client") {
+                setShownSkills(currentUser?.preferences?.map((pref) => pref.skillName) || []);
+            } else if (currentUser?.role === "handyman") {
+                setShownSkills(currentUser?.skills?.map((skill) => skill.skillName) || []);
+            } else {
+                setShownSkills([]);
+            }
             setCoverageArea(currentUser.coverageArea || []);
             setFormData({
                 name: currentUser.name || "",

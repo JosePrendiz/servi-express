@@ -1,9 +1,9 @@
 'use client'
-import { useState, useEffect } from 'react';
-import SearchBar from '@/components/search/searchBar';
 import HandymanCard from '@/components/cards/handymanCard';
-import { handymenAPI } from './axios'
+import SearchBar from '@/components/search/searchBar';
+import { useState, useEffect } from 'react';
 import Loading from '@/components/loader';
+import { handymenAPI } from './axios'
 
 export default function Home() {
   const [handymen, setHandymen] = useState([]);

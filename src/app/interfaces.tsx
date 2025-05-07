@@ -173,10 +173,14 @@ export interface Message {
     created_at: string;
 }
 export interface UserChatActions {
-    requestStatus: string,
     role: string,
-    channelId: string,
-    quotationId: string,
+    channel: {
+        data: {
+            requestStatus: string,
+            id: string,
+            quotationId: string,
+        },
+    },
 }
 export interface PayPalPaymentProps {
     amount: string;
