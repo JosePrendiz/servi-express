@@ -49,6 +49,11 @@ export interface UpdateHandymanData {
     personalDescription?: string,
     [key: string]: unknown,
 }
+export interface RoleChangeData {
+    skills: string[] | undefined,
+    coverageArea: string[],
+    personalDescription: string,
+}
 
 export interface RegisterClientData extends ThirdWebData {
     barrio: string | undefined;
@@ -82,6 +87,9 @@ export interface HandymanFormErrors {
     givenName: boolean;
     termsAccepted: boolean;
     description: boolean;
+};
+export interface HandymanConvertionErrors {
+    personalDescription: boolean;
 };
 
 export interface PageParams {

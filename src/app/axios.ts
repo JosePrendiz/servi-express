@@ -1,6 +1,6 @@
-import axios from "axios";
+import { PageParams, RegisterClientData, RegisterHandymanData, RequestServiceData, UpdateClientData, UpdateHandymanData, RoleChangeData } from "./interfaces";
 import { setCookie } from 'cookies-next';
-import { PageParams, RegisterClientData, RegisterHandymanData, RequestServiceData, UpdateClientData, UpdateHandymanData } from "./interfaces";
+import axios from "axios";
 
 const API_BASE_URL = "https://serviexpress-api.onrender.com";
 
@@ -281,6 +281,14 @@ export const clientsAPI = {
   updateClientProfile: async (updateData: UpdateClientData, email: string) => {
     try {
       const response = await apiClient.put(`/clients/update-client/${email}`, updateData);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+  changeClientRole: async (updateData: RoleChangeData) => {
+    try {
+      const response = await apiClient.put(`/clients/change-to-handyman`, updateData);
       return response.data;
     } catch (error) {
       throw error;

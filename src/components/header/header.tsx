@@ -9,6 +9,7 @@ import { inAppWallet } from "thirdweb/wallets";
 import { client } from '../../app/client';
 import RegisterClientPopup from '../auth/registerClient';
 import RegisterHandymanPopup from '../auth/registerHandyman';
+import  ConvertClientPopup from '../auth/convertClient'
 import { RiArrowDropDownLine, RiArrowDropUpLine } from "react-icons/ri";
 import { HiOutlineLogout } from "react-icons/hi";
 import { CgProfile } from "react-icons/cg";
@@ -23,11 +24,14 @@ export default function Header() {
     const { setThirdWebData, setCurrentUser, currentUser, setChatToken, chatToken } = useAppContext();
     const [isClientModalOpen, setIsClientModalOpen] = useState<boolean>(false);
     const [isHandymanModalOpen, setIsHandymanModalOpen] = useState<boolean>(false);
+    const [isHandymanConvertionModalOpen, setIsHandymanConvertionModalOpen] = useState<boolean>(false);
     const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false);
 
     const openClientModal = () => setIsClientModalOpen(true);
     const closeClientModal = () => setIsClientModalOpen(false);
     const openHandymanModal = () => setIsHandymanModalOpen(true);
+    const openHandymanConvertionModal = () => setIsHandymanConvertionModalOpen(true);
+    const closeHandymanConvertionModal = () => setIsHandymanConvertionModalOpen(false);
     const closeHandymanModal = () => setIsHandymanModalOpen(false);
     const toggleDropdown = () => setIsDropdownOpen((prev) => !prev);
 
@@ -145,7 +149,13 @@ export default function Header() {
                         />
                     </div>
                 </div>}
-                {currentUser?.role !== 'handyman' && <button className="green-bkgd" onClick={openHandymanModal}>
+                {currentUser?.role !== 'handyman' && <button className="green-bkgd" onClick={() => {
+                    if (currentUser?.role === 'client') {
+                        openHandymanConvertionModal()
+                    } else {
+                        openHandymanModal();                    
+                    }
+                }}>
                     Convertirme en Handyman
                 </button>}
                 {/* User Dropdown */}
@@ -162,7 +172,7 @@ export default function Header() {
                                 </Link>
                                 <Link href="/servicios" className='dropdown-item'>
                                     <FaRegCalendarAlt className="green-icons" />Mis Servicios
-                                </Link>                                
+                                </Link>
                                 <button className="dropdown-item" onClick={logout}>
                                     <HiOutlineLogout className="green-icons" />Cerrar Sesión
                                 </button>
@@ -171,7 +181,8 @@ export default function Header() {
                     </div>}
             </div>
             {isClientModalOpen && !currentUser && <RegisterClientPopup closeModal={closeClientModal} isConnected={!!activeAccount} />}
-            {isHandymanModalOpen && (currentUser?.role === 'client') && <RegisterHandymanPopup closeModal={closeHandymanModal} isConnected={!!activeAccount} />}
+            {isHandymanModalOpen && !currentUser && <RegisterHandymanPopup closeModal={closeHandymanModal} isConnected={!!activeAccount} />}
+            {isHandymanConvertionModalOpen && (currentUser?.role === 'client') && <ConvertClientPopup closeModal={closeHandymanConvertionModal} />}
         </header >
     );
 }

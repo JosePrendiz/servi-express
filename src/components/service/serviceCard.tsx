@@ -7,7 +7,7 @@ import { StreamChat } from 'stream-chat';
 const ActiveServices = ({ channel }: { channel: ServiceRequest }) => {
 
     const { currentUser, chatToken } = useAppContext();
-    const client = new StreamChat("xevpw6wvqw5s");
+    const client = new StreamChat("6ksqur8952g5");
 
     const [newMessage, setNewMessage] = useState(false)
 

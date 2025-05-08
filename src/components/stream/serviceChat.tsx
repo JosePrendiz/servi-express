@@ -11,7 +11,7 @@ import Image from 'next/image';
 import './chatStyles.css';
 import Link from 'next/link';
 
-const client = new StreamChat("xevpw6wvqw5s");
+const client = new StreamChat("6ksqur8952g5");
 
 export default function CustomStreamChat({ channelId }: { channelId: string }) {
     const { currentUser, chatToken } = useAppContext();

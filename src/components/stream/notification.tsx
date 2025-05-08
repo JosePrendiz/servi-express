@@ -7,7 +7,7 @@ import { serviceAPI } from 'app/axios';
 import './chatStyles.css';
 
 export default function ChatNotification() {
-    const client = new StreamChat("xevpw6wvqw5s");
+    const client = new StreamChat("6ksqur8952g5");
     const [notification, setNotification] = useState<boolean>(false);
 
     const { currentUser, chatToken } = useAppContext();
