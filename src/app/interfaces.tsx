@@ -111,6 +111,9 @@ export interface HandymanData {
     totalRatings: number;
     weightedRating: number;
 }
+export interface HandymanCardProps {
+    handymanData: HandymanData;
+}
 export interface ClientData {
     _id: string;
     address: string;
@@ -162,6 +165,7 @@ export interface ServiceRequest {
         lastName: string;
     };
 }
+
 export interface Message {
     id: string;
     text: string;
@@ -188,4 +192,10 @@ export interface PayPalPaymentProps {
 }
 export interface SearchBarProps {
     onSearch: (data: HandymanData[]) => void;
+}
+
+export interface HoverMessage {
+    text: string,
+    x: number,
+    y: number,
 }

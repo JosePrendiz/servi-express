@@ -41,7 +41,7 @@ const PayPalPayment: React.FC<PayPalPaymentProps> = ({ amount, quotationId }) =>
                             }
 
                             return actions.order.capture().then(() => {
-                                toast.success('El pago fue enviado con éxito! Cargando Datos');
+                                toast.success('El pago fue enviado con éxito! Procesando Datos');
                             });
                         },
                         onError: (err: Record<string, unknown>) => {

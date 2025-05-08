@@ -7,10 +7,10 @@ export default function Footer() {
         <footer className="flex justify-between items-center p-4 text-white bg-[#D9D9D9]">
             {/* Legal Buttons */}
             <div className="flex space-x-10 hide-on-small">
-                <Link href="/register">
+                <Link href="/sobre-nosotros">
                     <button className="no-bkgd-black">Sobre Nosotros</button>
                 </Link>
-                <Link href="/login">
+                <Link href="/terminos-y-privacidad">
                     <button className="no-bkgd-black">Términos y Privacidad</button>
                 </Link>
                 <Link href="/contact">

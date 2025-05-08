@@ -1,17 +1,18 @@
+import { FaMapMarkerAlt, FaStar } from 'react-icons/fa';
+import { HandymanCardProps } from 'app/interfaces';
 import React from 'react';
 import Image from 'next/image';
-import { FaMapMarkerAlt, FaStar } from 'react-icons/fa';
-import { HandymanData } from 'app/interfaces';
 import Link from 'next/link';
 
-interface HandymanCardProps {
-    handymanData: HandymanData;
-}
-
 export default function HandymanCard({ handymanData }: HandymanCardProps) {
+
     const filledStars = Math.floor(handymanData.rating);
     const emptyStars = 5 - filledStars;
     const slug = handymanData._id;
+
+    const maxSkillsToShow = 3;
+    const displayedSkills = handymanData.skills.slice(0, maxSkillsToShow);
+    const remainingSkills = handymanData.skills.length - maxSkillsToShow;
 
     return (
         <Link
@@ -41,17 +42,22 @@ export default function HandymanCard({ handymanData }: HandymanCardProps) {
                 <p style={{ color: '#7D867E' }}>{handymanData.coverageArea.join(', ')}</p>
             </div>
             {/* Skills */}
-            <div className="w-full mt-4">
-                <div className="flex justify-center">
-                    <span className="title-skills">Habilidades:</span>
-                </div>
-                <div className="flex flex-wrap mt-2" style={{ justifyContent: 'center' }}>
-                    {handymanData.skills.map((skill, index) => (
-                        <span key={index} className="value-skills" style={{ margin: '2px' }}>
+            <div className="w-full mt-4 text-center">
+                <div className="text-sm font-medium text-gray-600 mb-2">Habilidades:</div>
+                <div className="flex flex-wrap justify-center gap-1">
+                    {displayedSkills.map((skill, index) => (
+                        <span
+                            key={index}
+                            className="px-2 py-1 bg-gray-200 rounded text-gray-700 text-xs truncate max-w-[80px]"
+                        >
                             {skill.skillName}
-                            {index < handymanData.skills.length - 1 ? ',' : '.'}
                         </span>
                     ))}
+                    {remainingSkills > 0 && (
+                        <span className="px-2 py-1 bg-gray-300 rounded text-gray-600 text-xs">
+                            +{remainingSkills} más
+                        </span>
+                    )}
                 </div>
             </div>
             {/* Star Rating */}
