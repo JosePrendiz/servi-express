@@ -87,7 +87,7 @@ const UserActions: React.FC<UserChatActions> = ({ role, channel }) => {
                 case 'quoted':
                     return {
                         title: 'Cotización Recibida',
-                        description: 'Por favor confirma si deseas aceptar o rechazar la cotización antes de continuar.',
+                        description: `Por favor confirma si deseas aceptar o rechazar la cotización de $${channel.data.quotationValue}.`,
                         buttons: [
                             { label: 'Aceptar', onClick: handleAcceptQuote, className: 'accept-btn' },
                             { label: 'Rechazar', onClick: handleRejectQuote, className: 'reject-btn' },

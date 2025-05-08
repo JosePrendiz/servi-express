@@ -191,6 +191,7 @@ export interface UserChatActions {
             requestStatus: string,
             id: string,
             quotationId: string,
+            quotationValue: number,
         },
     },
 }
