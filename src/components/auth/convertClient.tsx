@@ -96,7 +96,7 @@ export default function ConvertClientPopup({ closeModal }: RegisterPopupProps) {
                             onChange={(e) => {
                                 setUserData((prevState) => {
                                     if (!prevState) {
-                                        return null;
+                                        return undefined;
                                     }
                                     return {
                                         ...prevState,
@@ -115,7 +115,7 @@ export default function ConvertClientPopup({ closeModal }: RegisterPopupProps) {
                                     key={profession.skillName}
                                     onClick={() => setUserData((prevState) => {
                                         if (!prevState) {
-                                            return null;
+                                            return undefined;
                                         }
                                         const skills = prevState?.skills || [];
                                         if (skills.includes(profession.skillName)) {

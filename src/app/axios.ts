@@ -286,7 +286,7 @@ export const clientsAPI = {
       throw error;
     }
   },
-  changeClientRole: async (updateData: RoleChangeData) => {
+  changeClientRole: async (updateData: RoleChangeData | undefined) => {
     try {
       const response = await apiClient.put(`/clients/change-to-handyman`, updateData);
       return response.data;
