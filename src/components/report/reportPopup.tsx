@@ -1,5 +1,6 @@
 'use client';
 import React, { useState } from 'react';
+import { toast } from 'react-toastify';
 import { usersAPI } from 'app/axios';
 
 interface ReportPopupProps {
@@ -19,6 +20,7 @@ const ReportPopup: React.FC<ReportPopupProps> = ({ isOpen, onClose, reportedUser
             title: reportTitle,
             description: reportDescription,
         });
+        toast.success('El reporte fue enviado exitosamente!!!');
         onClose();
         setReportTitle('');
         setReportDescription('');
