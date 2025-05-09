@@ -91,6 +91,33 @@ export const usersAPI = {
   },
 };
 
+export const adminAPI = {
+  getAllUsers: async (page: string, limit: string) => {
+    try {
+      const response = await apiClient.get(`/admin/getAllUsers?page=${page}&limit=${limit}`);
+      return response.data.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+  getAllReports: async (page: string, limit: string) => {
+    try {
+      const response = await apiClient.get(`/admin/getAllReports?page=${page}&limit=${limit}`);
+      return response.data.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+  banUser: async (userId: string) => {
+    try {
+      const response = await apiClient.patch(`/admin/users/${userId}/ban`);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+};
+
 export const skillsAPI = {
   getAllSkills: async () => {
     try {

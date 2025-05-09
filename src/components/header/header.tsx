@@ -1,23 +1,23 @@
 "use client";
-import React, { useEffect, useState, useRef } from 'react';
-import Image from 'next/image';
-import Link from 'next/link'
-import serviExpressLogo from '@/assets/servi-express-logo.png'
 import { ConnectButton, useActiveAccount, useDisconnect, useActiveWallet } from "thirdweb/react";
-import { getProfiles } from "thirdweb/wallets/in-app";
-import { inAppWallet } from "thirdweb/wallets";
-import { client } from '../../app/client';
-import RegisterClientPopup from '../auth/registerClient';
-import RegisterHandymanPopup from '../auth/registerHandyman';
-import  ConvertClientPopup from '../auth/convertClient'
 import { RiArrowDropDownLine, RiArrowDropUpLine } from "react-icons/ri";
-import { HiOutlineLogout } from "react-icons/hi";
-import { CgProfile } from "react-icons/cg";
-import { FaRegCalendarAlt } from "react-icons/fa";
-import { useAppContext } from 'app/context';
-import { ThirdWebData } from 'app/interfaces';
 import { authAPI, usersAPI, handymenAPI, clientsAPI } from 'app/axios';
+import serviExpressLogo from '@/assets/servi-express-logo.png';
+import RegisterHandymanPopup from '../auth/registerHandyman';
+import React, { useEffect, useState, useRef } from 'react';
+import RegisterClientPopup from '../auth/registerClient';
+import ConvertClientPopup from '../auth/convertClient';
+import { getProfiles } from "thirdweb/wallets/in-app";
 import ChatNotification from '../stream/notification';
+import { FaRegCalendarAlt } from "react-icons/fa";
+import { HiOutlineLogout } from "react-icons/hi";
+import { inAppWallet } from "thirdweb/wallets";
+import { ThirdWebData } from 'app/interfaces';
+import { useAppContext } from 'app/context';
+import { CgProfile } from "react-icons/cg";
+import { client } from '../../app/client';
+import Image from 'next/image';
+import Link from 'next/link';
 
 export default function Header() {
 
@@ -149,15 +149,22 @@ export default function Header() {
                         />
                     </div>
                 </div>}
-                {currentUser?.role !== 'handyman' && <button className="green-bkgd" onClick={() => {
+                {currentUser?.role !== 'handyman' && currentUser?.role !== 'admin' && <button className="green-bkgd" onClick={() => {
                     if (currentUser?.role === 'client') {
                         openHandymanConvertionModal()
                     } else {
-                        openHandymanModal();                    
+                        openHandymanModal();
                     }
                 }}>
                     Convertirme en Handyman
                 </button>}
+
+                {currentUser?.role === 'admin' &&
+                    <Link href='/admin'>
+                        <div className="dark-green-btn">
+                            Dashboard
+                        </div>
+                    </Link>}
                 {/* User Dropdown */}
 
                 {currentUser &&

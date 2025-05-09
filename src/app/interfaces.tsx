@@ -228,3 +228,24 @@ export interface ReportData {
     title: string,
     description: string,
 }
+export interface DisplayReportData {
+    title: string,
+    description: string,
+    _id: string,
+    reporterUserId: {
+        _id: string,
+        name: string,
+        lastName: string,
+        email: string,
+        phone: string,
+    },
+    reportedUserId: {
+        _id: string,
+        name: string,
+        lastName: string,
+        email: string,
+        phone: string,
+    },
+    reporterRole: string,
+    createdAt: string,
+}
