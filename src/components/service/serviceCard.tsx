@@ -4,7 +4,7 @@ import { ServiceRequest } from 'app/interfaces';
 import { useAppContext } from 'app/context';
 import { StreamChat } from 'stream-chat';
 
-const ActiveServices = ({ channel }: { channel: ServiceRequest }) => {
+const ActiveServices = ({ channel, onReport }: { channel: ServiceRequest, onReport: (userID: string, userName: string) => void; }) => {
 
     const { currentUser, chatToken } = useAppContext();
     const client = new StreamChat("6ksqur8952g5");
@@ -35,12 +35,20 @@ const ActiveServices = ({ channel }: { channel: ServiceRequest }) => {
         const streamChannel = client.channel('messaging', `request-${channel._id}`);
         await streamChannel.watch();
         await streamChannel.markRead();
+        if (['rejected', 'completed', 'expired', 'cancelled'].includes(channel.status)) {
+            window.location.href = `/detalles/${channel._id}`;
+            return;
+        }
         if (currentUser?.role === 'handyman') {
             window.location.href = `/client/${channel.clientId._id}`;
         } else if (currentUser?.role === 'client') {
             window.location.href = `/handyman/${channel.handymanId._id}`;
         }
     }
+
+    const handleReport = () => {
+        onReport(channel.clientId._id || channel.handymanId._id, channel.clientId.name || channel.handymanId.name)
+    };
 
     useEffect(() => {
         if (chatToken) {
@@ -53,8 +61,8 @@ const ActiveServices = ({ channel }: { channel: ServiceRequest }) => {
         <div
             key={channel._id}
             className={`service-card ${['rejected', 'completed', 'expired', 'cancelled'].includes(channel.status)
-                    ? 'inactive-service'
-                    : 'active-service'
+                ? 'inactive-service'
+                : 'active-service'
                 }`}
             onClick={markAsRead}
         >
@@ -84,19 +92,29 @@ const ActiveServices = ({ channel }: { channel: ServiceRequest }) => {
                     <span className="font-semibold">Ubicación:</span>{' '}
                     {`${channel.location.municipality}, ${channel.location.neighborhood}, ${channel.location.address}`}
                 </p>
-                <p>
-                    <span className="font-semibold">Tarea Expira:</span>{' '}
-                    {new Date(channel.expiresAt).toLocaleDateString()}
-                </p>
-                <p>
-                    <span className="font-semibold">Status:</span> {channel.status}
-                </p>
+                {!(['rejected', 'completed', 'expired', 'cancelled'].includes(channel.status)) &&
+                    <p>
+                        <span className="font-semibold">Tarea Expira:</span>{' '}
+                        {new Date(channel.expiresAt).toLocaleDateString()}
+                    </p>
+                }
                 {channel.categories.length > 0 && (
                     <p>
                         <span className="font-semibold">Categoría:</span> {channel.categories[0].skillName}
                     </p>
                 )}
+                <p>
+                    <span className="font-semibold">Status:</span> {channel.status}
+                </p>
             </div>
+            <button className="report-button"
+                onClick={(e) => {
+                    e.stopPropagation();
+                    handleReport();
+                }}
+            >
+                {currentUser?.role === 'client' ? 'Reportar Handyman' : 'Reportar Cliente'}
+            </button>
         </div>
     );
 };

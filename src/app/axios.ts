@@ -1,4 +1,4 @@
-import { PageParams, RegisterClientData, RegisterHandymanData, RequestServiceData, UpdateClientData, UpdateHandymanData, RoleChangeData } from "./interfaces";
+import { PageParams, RegisterClientData, RegisterHandymanData, RequestServiceData, UpdateClientData, UpdateHandymanData, RoleChangeData, ReportData } from "./interfaces";
 import { setCookie } from 'cookies-next';
 import axios from "axios";
 
@@ -75,6 +75,15 @@ export const usersAPI = {
   searchHandymen: async (query: string) => {
     try {
       const response = await apiClient.get(`/users/search-handyman?q=${query}`);
+      return response.data.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  reportUser: async (body: ReportData) => {
+    try {
+      const response = await apiClient.post(`/users/create-report`, body);
       return response.data.data;
     } catch (error) {
       throw error;
@@ -181,6 +190,24 @@ export const serviceAPI = {
     try {
       const response = await apiClient.patch(`/requests/complete-request/${requestID}`);
       return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  handymanPayoutDetails: async (requestID: string) => {
+    try {
+      const response = await apiClient.get(`/payouts/handyman/request/${requestID}`);
+      return response.data.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  clientPayoutDetails: async (requestID: string) => {
+    try {
+      const response = await apiClient.get(`/payouts/client/request/${requestID}`);
+      return response.data.data;
     } catch (error) {
       throw error;
     }

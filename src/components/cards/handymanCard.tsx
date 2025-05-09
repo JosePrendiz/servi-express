@@ -1,8 +1,9 @@
-import { FaMapMarkerAlt, FaStar } from 'react-icons/fa';
+import { FaStar, FaMapMarkerAlt } from 'react-icons/fa';
 import { HandymanCardProps } from 'app/interfaces';
 import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import './cardStyle.css';
 
 export default function HandymanCard({ handymanData }: HandymanCardProps) {
 
@@ -10,65 +11,67 @@ export default function HandymanCard({ handymanData }: HandymanCardProps) {
     const emptyStars = 5 - filledStars;
     const slug = handymanData._id;
 
-    const maxSkillsToShow = 3;
+    const maxSkillsToShow = 4;
     const displayedSkills = handymanData.skills.slice(0, maxSkillsToShow);
     const remainingSkills = handymanData.skills.length - maxSkillsToShow;
 
     return (
-        <Link
-            href={`/handyman/${slug}`}
-            className="handymanCard"
-            style={{
-                width: '300px',
-                height: '350px',
-                backgroundColor: '#D9D9D9',
-            }}
-        >
+        <Link href={`/handyman/${slug}`} className="handymanCard">
             {/* Profile Image */}
-            <div className="w-24 h-24 rounded-full overflow-hidden bg-white">
-                <Image
-                    src={handymanData.profilePicture}
-                    alt={handymanData.name}
-                    width={96}
-                    height={96}
-                    className="w-full h-full object-cover"
-                />
+            <div className="card-row image-row">
+                <div className="image-container">
+                    <Image
+                        src={handymanData.profilePicture}
+                        alt={handymanData.name}
+                        width={96}
+                        height={96}
+                        className="image"
+                    />
+                </div>
             </div>
+
             {/* Name */}
-            <h3>{handymanData.name}</h3>
-            {/* Location */}
-            <div className="flex items-center mt-2">
-                <FaMapMarkerAlt className="text-lg mr-2" style={{ color: '#7D867E' }} />
-                <p style={{ color: '#7D867E' }}>{handymanData.coverageArea.join(', ')}</p>
+            <div className="card-row name-row">
+                <h3 className="name">{handymanData.name} {handymanData.lastName}</h3>
             </div>
+
             {/* Skills */}
-            <div className="w-full mt-4 text-center">
-                <div className="text-sm font-medium text-gray-600 mb-2">Habilidades:</div>
-                <div className="flex flex-wrap justify-center gap-1">
+            <div className="card-row skills-row">
+                <div className="skills-title">Habilidades:</div>
+                <div className="skills-list">
                     {displayedSkills.map((skill, index) => (
-                        <span
-                            key={index}
-                            className="px-2 py-1 bg-gray-200 rounded text-gray-700 text-xs truncate max-w-[80px]"
-                        >
+                        <span key={index} className="skill">
                             {skill.skillName}
                         </span>
                     ))}
                     {remainingSkills > 0 && (
-                        <span className="px-2 py-1 bg-gray-300 rounded text-gray-600 text-xs">
-                            +{remainingSkills} más
-                        </span>
+                        <span className="skill more-skills">+{remainingSkills} más</span>
                     )}
                 </div>
             </div>
+
+            {/* Location */}
+            <div className="card-row location-row">
+                <div className="location-title">
+                    <FaMapMarkerAlt className="location-icon" />
+                    Cobertura:
+                </div>
+                <div className="location-list">
+                    {handymanData.coverageArea.join(", ")}
+                </div>
+            </div>
+
             {/* Star Rating */}
-            <div className="mt-auto flex items-center">
-                {Array.from({ length: filledStars }).map((_, index) => (
-                    <FaStar key={index} className="text-golden text-lg" style={{ color: 'goldenrod' }} />
-                ))}
-                {Array.from({ length: emptyStars }).map((_, index) => (
-                    <FaStar key={filledStars + index} className="text-gray-400 text-lg" />
-                ))}
-                <span className="ml-2 text-sm text-gray-500">({handymanData.totalRatings} votos)</span>
+            <div className="card-row rating-row">
+                <div className="stars">
+                    {Array.from({ length: filledStars }).map((_, index) => (
+                        <FaStar key={index} className="star filled" />
+                    ))}
+                    {Array.from({ length: emptyStars }).map((_, index) => (
+                        <FaStar key={filledStars + index} className="star empty" />
+                    ))}
+                </div>
+                <span className="rating-text">({handymanData.totalRatings} votos)</span>
             </div>
         </Link>
     );

@@ -13,7 +13,7 @@ export default function Home() {
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(false);
 
-  const ITEMS_PER_PAGE = 20;
+  const ITEMS_PER_PAGE = 10;
 
   const fetchHandymen = async (page = 1) => {
     setLoading(true);
@@ -63,7 +63,7 @@ export default function Home() {
       ) : (
         <>
           <h2 className="text-center">
-            {resultHandymen.length > 0 ? 'Handymen Encontrados' : 'Nuestros Mejores Handymen'}
+            {resultHandymen.length > 0 ? 'Handymen Encontrados' : currentPage === 1 ? 'Nuestros Mejores Handymen' : 'Nuestros Handymen'}
           </h2>
           <div className="handymen-grid">
             {displayedHandymen.map((handyman, index) => (

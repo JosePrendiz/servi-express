@@ -208,3 +208,23 @@ export interface HoverMessage {
     x: number,
     y: number,
 }
+
+export interface RequestPayoutDetails {
+    clientName: string,
+    clientLastName: string,
+    handymanName: string,
+    handymanLastName: string,
+    requestTitle: string,
+    requestDescription: string,
+    createdAt: string,
+    completedAt: string,
+    clientPaymentAmount: number,
+    paypalFeeOnClientPayment: number,
+    appCommission: number,
+    handymanNetAmount: number,
+}
+export interface ReportData {
+    reportedUserId: string,
+    title: string,
+    description: string,
+}
